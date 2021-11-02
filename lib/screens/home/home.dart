@@ -55,41 +55,43 @@ class _HomeScreenState extends State<HomeScreen> {
         CustomScrollView(
           slivers: [
             SliverAppBar(
-              pinned: true,
-              leading: Builder(
-                builder: (BuildContext context) {
-                  return IconButton(
-                    icon: const Icon(Icons.menu),
-                    onPressed: () {
-                      Scaffold.of(context).openDrawer();
-                    },
-                  );
-                },
-              ),
-              actions: [
-                IconButton(
-                  icon: const Icon(Icons.add),
-                  iconSize: 30.0,
-                  onPressed: () => Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (context) =>
-                          LongLinesForm(longline: null, formType: 'new'),
+                pinned: true,
+                leading: Builder(
+                  builder: (BuildContext context) {
+                    return IconButton(
+                      icon: const Icon(Icons.menu),
+                      onPressed: () {
+                        Scaffold.of(context).openDrawer();
+                      },
+                    );
+                  },
+                ),
+                actions: [
+                  IconButton(
+                    icon: const Icon(Icons.add),
+                    iconSize: 30.0,
+                    onPressed: () => Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (context) =>
+                            LongLinesForm(longline: null, formType: 'new'),
+                      ),
                     ),
                   ),
-                ),
-              ],
-              backgroundColor: AppTheme.primary,
-              title: Text('AERTOTEC SYSTEMS',
-                  style: GoogleFonts.benchNine(
-                      fontSize: 38, color: AppTheme.appBarFont)),
-              expandedHeight: 200,
-              flexibleSpace: Image.asset(
-                "images/background.jpg",
-                height: 200,
-                // width: MediaQuery.of(context).size.width,
-                fit: BoxFit.cover,
-              ),
-            ),
+                ],
+                backgroundColor: AppTheme.primary,
+                title: Text('AERTOTEC SYSTEMS',
+                    style: GoogleFonts.benchNine(
+                        fontSize: 38, color: AppTheme.appBarFont)),
+                expandedHeight: 200,
+                flexibleSpace: FlexibleSpaceBar(
+                  background: Image.asset(
+                    "images/background.jpg",
+                    // height: 300,
+                    // width: MediaQuery.of(context).size.width,
+                    alignment: Alignment.center,
+                    fit: BoxFit.fill,
+                  ),
+                )),
             SliverToBoxAdapter(
               child: Container(
                   padding: EdgeInsets.all(10),
