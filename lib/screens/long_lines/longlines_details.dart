@@ -5,6 +5,7 @@ import 'package:aerotec_flutter_app/screens/long_lines/inspection_checklist.dart
 import 'package:aerotec_flutter_app/screens/long_lines/longlines_form.dart';
 import 'package:aerotec_flutter_app/widgets/widgets.dart';
 import 'package:flutter/material.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
@@ -209,12 +210,22 @@ class _LongLinesDetailsState extends State<LongLinesDetails> {
                       child: ExpansionTile(
                         textColor: Colors.black,
                         iconColor: Colors.black,
-                        initiallyExpanded: false,
+                        initiallyExpanded: true,
                         onExpansionChanged: (val) {
                           setState(() => tile2 = val);
                         },
                         title: Text('Last Known Location'),
-                        children: [SizedBox(height: 200, child: Placeholder())],
+                        children: [
+                          SizedBox(
+                              height: 200,
+                              child: GoogleMap(
+                                initialCameraPosition: CameraPosition(
+                                  target: LatLng(
+                                      37.42796133580664, -122.085749655962),
+                                  zoom: 14.4746,
+                                ),
+                              ))
+                        ],
                       ),
                     ),
                   ),
