@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "673397168155",
+    "project_id": "aerotec-app",
+    "storage_bucket": "aerotec-app.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:673397168155:android:876f09439d1b70357d40be",
+        "android_client_info": {
+          "package_name": "com.aerotec.app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "673397168155-3qeco1fkpl1l1dbpdd0dimnocpvgsftm.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDc60zrRJUtd9TGOH2enRhnZQupYpROrXQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "673397168155-3qeco1fkpl1l1dbpdd0dimnocpvgsftm.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
