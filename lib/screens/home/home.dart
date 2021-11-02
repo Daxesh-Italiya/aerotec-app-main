@@ -84,12 +84,15 @@ class _HomeScreenState extends State<HomeScreen> {
                         fontSize: 38, color: AppTheme.appBarFont)),
                 expandedHeight: 200,
                 flexibleSpace: FlexibleSpaceBar(
-                  background: Image.asset(
-                    "images/background.jpg",
-                    // height: 300,
-                    // width: MediaQuery.of(context).size.width,
-                    alignment: Alignment.center,
-                    fit: BoxFit.fill,
+                  background: Padding(
+                    padding: const EdgeInsets.only(top: 50),
+                    child: Image.asset(
+                      "images/background.jpg",
+                      height: 200,
+                      // width: MediaQuery.of(context).size.width,
+                      alignment: Alignment.center,
+                      fit: BoxFit.fill,
+                    ),
                   ),
                 )),
             SliverToBoxAdapter(
