@@ -23,7 +23,7 @@ class _MainTabbarState extends State<MainTabbar> {
         drawer: Drawer(
           child: LeftDrawer(),
         ),
-        body: SafeArea(child: HomeScreen()),
+        body: HomeScreen(),
         bottomNavigationBar: BottomAppBar(
             clipBehavior: Clip.antiAliasWithSaveLayer,
             shape: CircularNotchedRectangle(),

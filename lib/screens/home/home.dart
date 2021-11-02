@@ -85,7 +85,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 expandedHeight: 300,
                 flexibleSpace: FlexibleSpaceBar(
                   background: Padding(
-                    padding: const EdgeInsets.only(top: 50),
+                    padding: const EdgeInsets.only(top: 80),
                     child: Image.asset(
                       "images/background.jpg",
                       height: 300,
