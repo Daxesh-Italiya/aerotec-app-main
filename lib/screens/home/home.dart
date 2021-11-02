@@ -35,90 +35,109 @@ class HomeScreen extends StatefulWidget {
 // }
 
 class _HomeScreenState extends State<HomeScreen> {
+  late LongLinesProvider longLinesProvider;
+
+  void initState() {
+    super.initState();
+    longLinesProvider = Provider.of<LongLinesProvider>(context, listen: false);
+    Future.delayed(
+      const Duration(milliseconds: 1000),
+      () async {
+        longLinesProvider.subData();
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    LongLinesProvider longLinesProvider =
-        Provider.of<LongLinesProvider>(context);
-    return CustomScrollView(
-      slivers: [
-        SliverAppBar(
-          pinned: true,
-          leading: Builder(
-            builder: (BuildContext context) {
-              return IconButton(
-                icon: const Icon(Icons.menu),
-                onPressed: () {
-                  Scaffold.of(context).openDrawer();
+    return Stack(
+      children: [
+        CustomScrollView(
+          slivers: [
+            SliverAppBar(
+              pinned: true,
+              leading: Builder(
+                builder: (BuildContext context) {
+                  return IconButton(
+                    icon: const Icon(Icons.menu),
+                    onPressed: () {
+                      Scaffold.of(context).openDrawer();
+                    },
+                  );
                 },
-              );
-            },
-          ),
-          actions: [
-            IconButton(
-              icon: const Icon(Icons.add),
-              iconSize: 30.0,
-              onPressed: () => Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (context) =>
-                      LongLinesForm(longline: null, formType: 'new'),
-                ),
               ),
-            ),
-          ],
-          backgroundColor: AppTheme.primary,
-          title: Text('AERTOTEC SYSTEMS',
-              style: GoogleFonts.benchNine(
-                  fontSize: 38, color: AppTheme.appBarFont)),
-          expandedHeight: 200,
-          flexibleSpace: Image.asset(
-            "images/background.jpg",
-            height: 200,
-            // width: MediaQuery.of(context).size.width,
-            fit: BoxFit.cover,
-          ),
-        ),
-        SliverToBoxAdapter(
-          child: Container(
-              padding: EdgeInsets.all(10),
-              width: double.infinity,
-              color: Colors.grey[300],
-              child: Row(
-                children: [
-                  Expanded(
-                    child: TextField(
-                      decoration: InputDecoration(
-                          prefixIcon: Icon(Icons.search),
-                          border: OutlineInputBorder()),
+              actions: [
+                IconButton(
+                  icon: const Icon(Icons.add),
+                  iconSize: 30.0,
+                  onPressed: () => Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) =>
+                          LongLinesForm(longline: null, formType: 'new'),
                     ),
                   ),
+                ),
+              ],
+              backgroundColor: AppTheme.primary,
+              title: Text('AERTOTEC SYSTEMS',
+                  style: GoogleFonts.benchNine(
+                      fontSize: 38, color: AppTheme.appBarFont)),
+              expandedHeight: 200,
+              flexibleSpace: Image.asset(
+                "images/background.jpg",
+                height: 200,
+                // width: MediaQuery.of(context).size.width,
+                fit: BoxFit.cover,
+              ),
+            ),
+            SliverToBoxAdapter(
+              child: Container(
+                  padding: EdgeInsets.all(10),
+                  width: double.infinity,
+                  color: Colors.grey[300],
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: TextField(
+                          decoration: InputDecoration(
+                              prefixIcon: Icon(Icons.search),
+                              border: OutlineInputBorder()),
+                        ),
+                      ),
 
-                  /// menu
-                  Container(
-                      margin: EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                          shape: BoxShape.circle, border: Border.all()),
-                      child:
-                          IconButton(onPressed: () {}, icon: Icon(Icons.menu))),
+                      /// menu
+                      Container(
+                          margin: EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                              shape: BoxShape.circle, border: Border.all()),
+                          child: IconButton(
+                              onPressed: () {}, icon: Icon(Icons.menu))),
 
-                  /// add
-                  Container(
-                      margin: EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                          shape: BoxShape.circle, border: Border.all()),
-                      child:
-                          IconButton(onPressed: () {}, icon: Icon(Icons.add))),
-                ],
-              )),
+                      /// add
+                      Container(
+                          margin: EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                              shape: BoxShape.circle, border: Border.all()),
+                          child: IconButton(
+                              onPressed: () {}, icon: Icon(Icons.add))),
+                    ],
+                  )),
+            ),
+            Consumer<LongLinesProvider>(
+              builder: (context, provider, child) {
+                return SliverList(
+                    delegate: SliverChildBuilderDelegate(
+                  (_, int index) {
+                    final LongLinesModel longline =
+                        provider.longLinesProvider[index];
+                    return LongLineCard(longline: longline);
+                  },
+                  childCount: provider.longLinesProvider.length,
+                ));
+              },
+            )
+          ],
         ),
-        SliverList(
-            delegate: SliverChildBuilderDelegate(
-          (_, int index) {
-            final LongLinesModel longline =
-                longLinesProvider.longLinesProvider[index];
-            return LongLineCard(longline: longline);
-          },
-          childCount: longLinesProvider.longLinesProvider.length,
-        ))
       ],
     );
   }
