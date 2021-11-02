@@ -58,14 +58,17 @@ class _MainTabbarState extends State<MainTabbar> {
               ],
             )),
         floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-        floatingActionButton: FloatingActionButton(
-            onPressed: () {
-              // Navigator.push(context, MaterialPageRoute(builder: (context) => QRScanner()));
-            },
-            child: ImageIcon(
-              AssetImage("images/rss.png"),
-              size: 40,
-            )),
+        floatingActionButton: Visibility(
+          visible: MediaQuery.of(context).viewInsets.bottom == 0.0,
+          child: FloatingActionButton(
+              onPressed: () {
+                // Navigator.push(context, MaterialPageRoute(builder: (context) => QRScanner()));
+              },
+              child: ImageIcon(
+                AssetImage("images/rss.png"),
+                size: 40,
+              )),
+        ),
       ),
     );
   }
