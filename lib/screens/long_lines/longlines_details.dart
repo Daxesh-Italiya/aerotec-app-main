@@ -216,19 +216,24 @@ class _LongLinesDetailsState extends State<LongLinesDetails> {
                         },
                         title: Text('Last Known Location'),
                         children: [
-                          SizedBox(
+                          Container(
                               height: 200,
+                              color: Colors.white,
+                              padding: EdgeInsets.all(8),
                               child: GoogleMap(
                                 initialCameraPosition: CameraPosition(
                                   target: LatLng(
                                       37.42796133580664, -122.085749655962),
                                   zoom: 14.4746,
                                 ),
-                              ))
+                              )),
                         ],
                       ),
                     ),
                   ),
+                  SizedBox(
+                    height: 200,
+                  )
                 ],
               ),
             ),
