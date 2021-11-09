@@ -64,10 +64,9 @@ class _MainTabbarState extends State<MainTabbar> {
               onPressed: () {
                 // Navigator.push(context, MaterialPageRoute(builder: (context) => QRScanner()));
               },
-              child: ImageIcon(
-                AssetImage("images/rss.png"),
-                size: 40,
-              )),
+              child:Icon(Icons.rss_feed,size: 40,)
+
+          ),
         ),
       ),
     );

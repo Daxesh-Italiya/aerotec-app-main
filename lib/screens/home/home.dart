@@ -3,6 +3,7 @@ import 'package:aerotec_flutter_app/models/longlines/longlines_model.dart';
 import 'package:aerotec_flutter_app/providers/longlines_provider.dart';
 import 'package:aerotec_flutter_app/screens/long_lines/longlines.dart';
 import 'package:aerotec_flutter_app/screens/long_lines/longlines_form.dart';
+import 'package:aerotec_flutter_app/screens/search/search.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
@@ -66,18 +67,6 @@ class _HomeScreenState extends State<HomeScreen> {
                     );
                   },
                 ),
-                actions: [
-                  IconButton(
-                    icon: const Icon(Icons.add),
-                    iconSize: 30.0,
-                    onPressed: () => Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (context) =>
-                            LongLinesForm(longline: null, formType: 'new'),
-                      ),
-                    ),
-                  ),
-                ],
                 backgroundColor: AppTheme.primary,
                 title: Text('AERTOTEC SYSTEMS',
                     style: GoogleFonts.benchNine(
@@ -103,28 +92,42 @@ class _HomeScreenState extends State<HomeScreen> {
                   child: Row(
                     children: [
                       Expanded(
-                        child: TextField(
-                          decoration: InputDecoration(
-                              prefixIcon: Icon(Icons.search),
-                              border: OutlineInputBorder()),
-                        ),
+                          child: Text(
+                        'Long Lines',
+                        style: Theme.of(context)
+                            .textTheme
+                            .headline5!
+                            .copyWith(color: AppTheme.primary),
+                      )),
+
+                      /// search
+                      RoundIconButton(
+                        icon: Icons.search,
+                        onTap: (){
+                          showSearch(
+                            context: context,
+                            delegate: CustomSearchDelegate(),
+                          );
+                        },
                       ),
 
-                      /// menu
-                      Container(
-                          margin: EdgeInsets.all(12),
-                          decoration: BoxDecoration(
-                              shape: BoxShape.circle, border: Border.all()),
-                          child: IconButton(
-                              onPressed: () {}, icon: Icon(Icons.menu))),
+                      /// search
+                      RoundIconButton(
+                        icon: Icons.menu,
+                      ),
 
                       /// add
-                      Container(
-                          margin: EdgeInsets.all(12),
-                          decoration: BoxDecoration(
-                              shape: BoxShape.circle, border: Border.all()),
-                          child: IconButton(
-                              onPressed: () {}, icon: Icon(Icons.add))),
+                      RoundIconButton(
+                        icon: Icons.add_outlined,
+                        onTap: (){
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (context) =>
+                                  LongLinesForm(longline: null, formType: 'new'),
+                            ),
+                          );
+                        },
+                      ),
                     ],
                   )),
             ),
@@ -144,6 +147,35 @@ class _HomeScreenState extends State<HomeScreen> {
           ],
         ),
       ],
+    );
+  }
+}
+
+class RoundIconButton extends StatelessWidget {
+  const RoundIconButton({
+    Key? key,
+    this.icon, this.onTap,
+  }) : super(key: key);
+
+  final IconData? icon;
+  final VoidCallback? onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: onTap,
+      child: Container(
+        padding: EdgeInsets.all(6),
+        margin: EdgeInsets.symmetric(horizontal: 2),
+          decoration: BoxDecoration(
+            color: Colors.grey,
+            shape: BoxShape.circle,
+          ),
+          child: Icon(
+            icon,
+            size: 26,
+            color: Colors.white,
+          )),
     );
   }
 }
