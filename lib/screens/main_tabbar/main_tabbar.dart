@@ -44,6 +44,13 @@ class _MainTabbarState extends State<MainTabbar> {
                     ),
                   ),
                 ),
+                Padding(
+                  padding: const EdgeInsets.only(
+                    left: 40,
+                    top: 20,
+                    right: 40,
+                    bottom: 20,
+                  ),),
                 Expanded(
                   child: Container(
                     height: 55,

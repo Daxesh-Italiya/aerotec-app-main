@@ -87,8 +87,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       obscureText: false,
                       initialValue: email,
                       onChanged: (val) => setState(() => email = val),
-                      validator: (val) =>
-                          !isEmail(val) ? 'Invalid Email' : null,
+                      validator: (val) => !isEmail(val) ? 'Invalid Email' : null,
                       labelText: 'Email Address',
                     ),
                     SizedBox(
