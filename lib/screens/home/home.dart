@@ -103,7 +103,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       /// search
                       RoundIconButton(
                         icon: Icons.search,
-                        onTap: (){
+                        onTap: () {
                           showSearch(
                             context: context,
                             delegate: CustomSearchDelegate(),
@@ -111,19 +111,33 @@ class _HomeScreenState extends State<HomeScreen> {
                         },
                       ),
 
-                      /// search
-                      RoundIconButton(
-                        icon: Icons.menu,
+                      InkWell(
+                        onTap: () {},
+                        child: Container(
+                          padding: EdgeInsets.all(6),
+                          margin: EdgeInsets.symmetric(horizontal: 2),
+                          decoration: BoxDecoration(
+                            color: Colors.grey,
+                            shape: BoxShape.circle,
+                          ),
+                          child: Center(
+                            child: ImageIcon(
+                              AssetImage('images/menu.png'),
+                              size: 26,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
                       ),
 
                       /// add
                       RoundIconButton(
                         icon: Icons.add_outlined,
-                        onTap: (){
+                        onTap: () {
                           Navigator.of(context).push(
                             MaterialPageRoute(
-                              builder: (context) =>
-                                  LongLinesForm(longline: null, formType: 'new'),
+                              builder: (context) => LongLinesForm(
+                                  longline: null, formType: 'new'),
                             ),
                           );
                         },
@@ -154,7 +168,8 @@ class _HomeScreenState extends State<HomeScreen> {
 class RoundIconButton extends StatelessWidget {
   const RoundIconButton({
     Key? key,
-    this.icon, this.onTap,
+    this.icon,
+    this.onTap,
   }) : super(key: key);
 
   final IconData? icon;
@@ -165,8 +180,8 @@ class RoundIconButton extends StatelessWidget {
     return InkWell(
       onTap: onTap,
       child: Container(
-        padding: EdgeInsets.all(6),
-        margin: EdgeInsets.symmetric(horizontal: 2),
+          padding: EdgeInsets.all(6),
+          margin: EdgeInsets.symmetric(horizontal: 2),
           decoration: BoxDecoration(
             color: Colors.grey,
             shape: BoxShape.circle,
