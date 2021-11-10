@@ -338,7 +338,7 @@ class _LongLinesFormState extends State<LongLinesForm> {
                       color: Colors.black,
                     ),
                   ),
-                  SizedBox(height: size.height * .02),
+                  SizedBox(height: size.height * .03),
                   DateTimePickerWidget(
                       format: DateFormat('MM-dd-yyyy'),
                       labelText: 'Date Put Into Service *',
@@ -349,7 +349,7 @@ class _LongLinesFormState extends State<LongLinesForm> {
                           ? DateTime.fromMillisecondsSinceEpoch(
                               datePutIntoService.seconds * 1000)
                           : null),
-                  SizedBox(height: size.height * .02),
+                  SizedBox(height: size.height * .03),
                   DateTimePickerWidget(
                       format: DateFormat('MM-dd-yyyy'),
                       labelText: 'Date Purchased *',
