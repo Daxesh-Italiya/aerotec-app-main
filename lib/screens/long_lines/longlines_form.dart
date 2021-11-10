@@ -233,7 +233,6 @@ class _LongLinesFormState extends State<LongLinesForm> {
                   ),
                   SizedBox(height: size.height * .02),
                   CustomDropDownFormWidget(
-
                       labelText: 'Category',
                       items: longLineCategory,
                       value: category,
@@ -243,9 +242,9 @@ class _LongLinesFormState extends State<LongLinesForm> {
                         setState(() => category = val);
                         FocusScope.of(context).requestFocus(FocusNode());
                       }),
-                  SizedBox(height: size.height * .01),
+                  SizedBox(height: size.height * .04),
                   Text(
-                    'Identity & Specs',
+                    'Details',
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
@@ -261,11 +260,21 @@ class _LongLinesFormState extends State<LongLinesForm> {
                     validator: (val) => val.isEmpty ? 'Enter a name' : null,
                     labelText: 'Name',
                   ),
+                  SizedBox(height: screenHeight * .02),
+                  TextFieldWidget(
+                    textCapitalization: TextCapitalization.sentences,
+                    obscureText: false,
+                    initialValue: serialNumber,
+                    labelText: 'Serial Number',
+                    onChanged: (val) => setState(() => serialNumber = val),
+                    validator: (val) =>
+                        val.isEmpty ? 'Add a serial number' : null,
+                  ),
                   SizedBox(height: size.height * .02),
                   CustomDropDownFormWidget(
                       removeButton: true,
                       labelText: 'Size',
-                      items: longLineCategory,
+                      items: longLineSize,
                       value: lgsize,
                       validator: (val) =>
                           val == '- select -' ? 'Add a Size' : null,
@@ -320,17 +329,7 @@ class _LongLinesFormState extends State<LongLinesForm> {
                     validator: (val) =>
                         val.isEmpty ? 'Add a part number' : null,
                   ),
-                  SizedBox(height: screenHeight * .02),
-                  TextFieldWidget(
-                    textCapitalization: TextCapitalization.sentences,
-                    obscureText: false,
-                    initialValue: serialNumber,
-                    labelText: 'Serial Number',
-                    onChanged: (val) => setState(() => serialNumber = val),
-                    validator: (val) =>
-                        val.isEmpty ? 'Add a serial number' : null,
-                  ),
-                  SizedBox(height: size.height * .03),
+                  SizedBox(height: size.height * .04),
                   Text(
                     'Maintenance',
                     style: TextStyle(
@@ -339,28 +338,6 @@ class _LongLinesFormState extends State<LongLinesForm> {
                       color: Colors.black,
                     ),
                   ),
-                  SizedBox(height: size.height * .03),
-                  CustomDropDownFormWidget(
-                    labelText: 'Time Between Overhauls',
-                    items: timeBetweenOverhaulsItems,
-                    value: timeBetweenOverhauls,
-                    validator: (val) =>
-                        val == '- select -' ? 'Add a time' : null,
-                    onChanged: (val) {
-                      setState(() => timeBetweenOverhauls = val);
-                      FocusScope.of(context).requestFocus(FocusNode());
-                    },
-                  ),
-                  SizedBox(height: size.height * .02),
-                  DateTimePickerWidget(
-                      format: DateFormat('MM-dd-yyyy'),
-                      labelText: 'Date Purchased',
-                      onChanged: (value) => setState(() => datePurchased),
-                      validator: (val) => val == null ? 'Enter a date' : null,
-                      initialValue: formType == 'edit'
-                          ? DateTime.fromMillisecondsSinceEpoch(
-                              datePurchased.seconds * 1000)
-                          : null),
                   SizedBox(height: size.height * .02),
                   DateTimePickerWidget(
                       format: DateFormat('MM-dd-yyyy'),
@@ -375,15 +352,26 @@ class _LongLinesFormState extends State<LongLinesForm> {
                   SizedBox(height: size.height * .02),
                   DateTimePickerWidget(
                       format: DateFormat('MM-dd-yyyy'),
-                      labelText: 'Next Inspection Date',
+                      labelText: 'Date Purchased',
+                      onChanged: (value) => setState(() => datePurchased),
                       validator: (val) => val == null ? 'Enter a date' : null,
-                      onChanged: (value) =>
-                          setState(() => value = nextInspectionDate),
                       initialValue: formType == 'edit'
                           ? DateTime.fromMillisecondsSinceEpoch(
-                              nextInspectionDate.seconds * 1000)
+                              datePurchased.seconds * 1000)
                           : null),
                   SizedBox(height: size.height * .03),
+                  CustomDropDownFormWidget(
+                    labelText: 'Time Between Overhauls',
+                    items: timeBetweenOverhaulsItems,
+                    value: timeBetweenOverhauls,
+                    validator: (val) =>
+                        val == '- select -' ? 'Add a time' : null,
+                    onChanged: (val) {
+                      setState(() => timeBetweenOverhauls = val);
+                      FocusScope.of(context).requestFocus(FocusNode());
+                    },
+                  ),
+                  SizedBox(height: size.height * .02),
                   Builder(builder: (BuildContext context) {
                     if (longLinesProvider.isLoading)
                       return Center(

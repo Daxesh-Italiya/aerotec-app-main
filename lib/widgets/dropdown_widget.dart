@@ -212,11 +212,11 @@ class _RoundIconButton extends StatelessWidget {
           decoration: BoxDecoration(
               color: Colors.white,
               shape: BoxShape.circle,
-              border: Border.all()),
+              border: Border.all(color: Color(0xFFB6B6B6),)),
           child: Icon(
             icon,
             size: 26,
-            color: Colors.black,
+            color: Color(0xFF6D6D6D),
           )),
     );
   }

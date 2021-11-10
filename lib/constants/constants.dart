@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 List<String> longLineTypes = ['- select -', 'HEC', 'Cargo', 'Short Haul'];
-List<String> longLineCategory = ['- select -',];
+List<String> longLineCategory = ['- select or add new  -',];
 List<String> longLineSize = ['- select -',];
 
 List<String> longLineLengths = [ "- select -", "150'", "125'", "100'", "75'", "50'", "25'" ];
