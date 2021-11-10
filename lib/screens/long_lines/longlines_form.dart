@@ -233,7 +233,7 @@ class _LongLinesFormState extends State<LongLinesForm> {
                   ),
                   SizedBox(height: size.height * .02),
                   CustomDropDownFormWidget(
-                      labelText: 'Category',
+                      labelText: 'Category *',
                       items: longLineCategory,
                       value: category,
                       validator: (val) =>
@@ -258,14 +258,14 @@ class _LongLinesFormState extends State<LongLinesForm> {
                     initialValue: name,
                     onChanged: (val) => setState(() => name = val),
                     validator: (val) => val.isEmpty ? 'Enter a name' : null,
-                    labelText: 'Name',
+                    labelText: 'Name *',
                   ),
                   SizedBox(height: screenHeight * .02),
                   TextFieldWidget(
                     textCapitalization: TextCapitalization.sentences,
                     obscureText: false,
                     initialValue: serialNumber,
-                    labelText: 'Serial Number',
+                    labelText: 'Serial Number *',
                     onChanged: (val) => setState(() => serialNumber = val),
                     validator: (val) =>
                         val.isEmpty ? 'Add a serial number' : null,
@@ -273,7 +273,7 @@ class _LongLinesFormState extends State<LongLinesForm> {
                   SizedBox(height: size.height * .02),
                   CustomDropDownFormWidget(
                       removeButton: true,
-                      labelText: 'Size',
+                      labelText: 'Size *',
                       items: longLineSize,
                       value: lgsize,
                       validator: (val) =>
@@ -285,7 +285,7 @@ class _LongLinesFormState extends State<LongLinesForm> {
                   SizedBox(height: size.height * .02),
                   CustomDropDownFormWidget(
                       removeButton: true,
-                      labelText: 'Length',
+                      labelText: 'Length *',
                       items: longLineLengths,
                       value: length,
                       validator: (val) =>
@@ -297,7 +297,7 @@ class _LongLinesFormState extends State<LongLinesForm> {
                   SizedBox(height: size.height * .02),
                   CustomDropDownFormWidget(
                     removeButton: true,
-                    labelText: 'Type',
+                    labelText: 'Type *',
                     items: longLineTypes,
                     value: type,
                     validator: (val) =>
@@ -309,7 +309,7 @@ class _LongLinesFormState extends State<LongLinesForm> {
                   ),
                   SizedBox(height: size.height * .02),
                   CustomDropDownFormWidget(
-                    labelText: 'Safe Working Load',
+                    labelText: 'Safe Working Load *',
                     items: safeWorkingLoadItems,
                     value: safeWorkingLoad,
                     validator: (val) =>
@@ -324,7 +324,7 @@ class _LongLinesFormState extends State<LongLinesForm> {
                     textCapitalization: TextCapitalization.sentences,
                     obscureText: false,
                     initialValue: partNumber,
-                    labelText: 'Part Number',
+                    labelText: 'Part Number *',
                     onChanged: (val) => setState(() => partNumber = val),
                     validator: (val) =>
                         val.isEmpty ? 'Add a part number' : null,
@@ -341,7 +341,7 @@ class _LongLinesFormState extends State<LongLinesForm> {
                   SizedBox(height: size.height * .02),
                   DateTimePickerWidget(
                       format: DateFormat('MM-dd-yyyy'),
-                      labelText: 'Date Put Into Service',
+                      labelText: 'Date Put Into Service *',
                       onChanged: (value) =>
                           setState(() => value = datePutIntoService),
                       validator: (val) => val == null ? 'Enter a date' : null,
@@ -352,7 +352,7 @@ class _LongLinesFormState extends State<LongLinesForm> {
                   SizedBox(height: size.height * .02),
                   DateTimePickerWidget(
                       format: DateFormat('MM-dd-yyyy'),
-                      labelText: 'Date Purchased',
+                      labelText: 'Date Purchased *',
                       onChanged: (value) => setState(() => datePurchased),
                       validator: (val) => val == null ? 'Enter a date' : null,
                       initialValue: formType == 'edit'
@@ -361,7 +361,7 @@ class _LongLinesFormState extends State<LongLinesForm> {
                           : null),
                   SizedBox(height: size.height * .03),
                   CustomDropDownFormWidget(
-                    labelText: 'Time Between Overhauls',
+                    labelText: 'Time Between Overhauls *',
                     items: timeBetweenOverhaulsItems,
                     value: timeBetweenOverhauls,
                     validator: (val) =>
