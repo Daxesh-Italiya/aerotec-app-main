@@ -6,15 +6,19 @@ class TextFieldWidget extends StatelessWidget {
   final validator;
   final String labelText;
   final bool obscureText;
+  final bool autofocus;
   final TextCapitalization textCapitalization;
 
   TextFieldWidget({
     required this.initialValue,
     required this.onChanged,
     required this.validator,
+
+
     required this.labelText,
     required this.obscureText,
     required this.textCapitalization,
+    this.autofocus=false,
   });
 
   @override
@@ -22,6 +26,7 @@ class TextFieldWidget extends StatelessWidget {
     return TextFormField(
       obscureText: obscureText,
       initialValue: initialValue,
+      autofocus: autofocus,
       decoration: InputDecoration(
         floatingLabelBehavior: FloatingLabelBehavior.always,
         labelText: labelText,

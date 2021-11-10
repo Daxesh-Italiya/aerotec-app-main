@@ -153,6 +153,7 @@ class _CustomDropDownFormWidgetState extends State<CustomDropDownFormWidget> {
         children: [
           Expanded(
             child: TextFieldWidget(
+              autofocus: true,
               textCapitalization: TextCapitalization.sentences,
               obscureText: false,
               initialValue: '',
