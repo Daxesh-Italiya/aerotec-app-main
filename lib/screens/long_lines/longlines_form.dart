@@ -267,8 +267,7 @@ class _LongLinesFormState extends State<LongLinesForm> {
                     initialValue: serialNumber,
                     labelText: 'Serial Number *',
                     onChanged: (val) => setState(() => serialNumber = val),
-                    validator: (val) =>
-                        val.isEmpty ? 'Add a serial number' : null,
+                    validator: (val) => val.isEmpty ? 'Add a serial number' : null,
                   ),
                   SizedBox(height: size.height * .02),
                   CustomDropDownFormWidget(
@@ -276,8 +275,7 @@ class _LongLinesFormState extends State<LongLinesForm> {
                       labelText: 'Size *',
                       items: longLineSize,
                       value: lgsize,
-                      validator: (val) =>
-                          val == '- select -' ? 'Add a Size' : null,
+                      validator: (val) => val == '- select -' ? 'Add a Size' : null,
                       onChanged: (val) {
                         setState(() => lgsize = val);
                         FocusScope.of(context).requestFocus(FocusNode());
@@ -288,8 +286,7 @@ class _LongLinesFormState extends State<LongLinesForm> {
                       labelText: 'Length *',
                       items: longLineLengths,
                       value: length,
-                      validator: (val) =>
-                          val == '- select -' ? 'Add a length' : null,
+                      validator: (val) => val == '- select -' ? 'Add a length' : null,
                       onChanged: (val) {
                         setState(() => length = val);
                         FocusScope.of(context).requestFocus(FocusNode());
@@ -300,8 +297,7 @@ class _LongLinesFormState extends State<LongLinesForm> {
                     labelText: 'Type *',
                     items: longLineTypes,
                     value: type,
-                    validator: (val) =>
-                        val == '- select -' ? 'Add a type' : null,
+                    validator: (val) => val == '- select -' ? 'Add a type' : null,
                     onChanged: (val) {
                       setState(() => type = val);
                       FocusScope.of(context).requestFocus(FocusNode());
@@ -312,8 +308,7 @@ class _LongLinesFormState extends State<LongLinesForm> {
                     labelText: 'Safe Working Load *',
                     items: safeWorkingLoadItems,
                     value: safeWorkingLoad,
-                    validator: (val) =>
-                        val == '- select -' ? 'Add a safe working load' : null,
+                    validator: (val) => val == '- select -' ? 'Add a safe working load' : null,
                     onChanged: (val) {
                       setState(() => safeWorkingLoad = val);
                       FocusScope.of(context).requestFocus(FocusNode());
@@ -342,12 +337,10 @@ class _LongLinesFormState extends State<LongLinesForm> {
                   DateTimePickerWidget(
                       format: DateFormat('MM-dd-yyyy'),
                       labelText: 'Date Put Into Service *',
-                      onChanged: (value) =>
-                          setState(() => value = datePutIntoService),
+                      onChanged: (value) => setState(() => value = datePutIntoService),
                       validator: (val) => val == null ? 'Enter a date' : null,
                       initialValue: formType == 'edit'
-                          ? DateTime.fromMillisecondsSinceEpoch(
-                              datePutIntoService.seconds * 1000)
+                          ? DateTime.fromMillisecondsSinceEpoch(datePutIntoService.seconds * 1000)
                           : null),
                   SizedBox(height: size.height * .03),
                   DateTimePickerWidget(
@@ -356,16 +349,14 @@ class _LongLinesFormState extends State<LongLinesForm> {
                       onChanged: (value) => setState(() => datePurchased),
                       validator: (val) => val == null ? 'Enter a date' : null,
                       initialValue: formType == 'edit'
-                          ? DateTime.fromMillisecondsSinceEpoch(
-                              datePurchased.seconds * 1000)
+                          ? DateTime.fromMillisecondsSinceEpoch(datePurchased.seconds * 1000)
                           : null),
                   SizedBox(height: size.height * .03),
                   CustomDropDownFormWidget(
                     labelText: 'Time Between Overhauls *',
                     items: timeBetweenOverhaulsItems,
                     value: timeBetweenOverhauls,
-                    validator: (val) =>
-                        val == '- select -' ? 'Add a time' : null,
+                    validator: (val) => val == '- select -' ? 'Add a time' : null,
                     onChanged: (val) {
                       setState(() => timeBetweenOverhauls = val);
                       FocusScope.of(context).requestFocus(FocusNode());
