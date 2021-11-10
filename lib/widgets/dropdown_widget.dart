@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:aerotec_flutter_app/widgets/widgets.dart';
 import 'package:flutter/material.dart';
 
@@ -174,13 +176,16 @@ class _CustomDropDownFormWidgetState extends State<CustomDropDownFormWidget> {
                 });
             },
           ),
-          _RoundIconButton(
-            icon: Icons.cancel,
-            onTap: () {
-              setState(() {
-                _addMode = !_addMode;
-              });
-            },
+          Transform.rotate(
+            angle: pi / 4,
+            child: _RoundIconButton(
+              icon: Icons.add,
+              onTap: () {
+                setState(() {
+                  _addMode = !_addMode;
+                });
+              },
+            ),
           )
         ],
       );
