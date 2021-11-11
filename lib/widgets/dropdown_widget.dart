@@ -63,7 +63,7 @@ class CustomDropDownFormWidget extends StatefulWidget {
   final onChanged;
   final validator;
   final String labelText;
-  final bool removeButton;
+  final bool hideOptions;
 
   CustomDropDownFormWidget(
       {required this.items,
@@ -71,7 +71,7 @@ class CustomDropDownFormWidget extends StatefulWidget {
       required this.onChanged,
       required this.labelText,
       required this.validator,
-      this.removeButton = false});
+      this.hideOptions = false});
 
   @override
   State<CustomDropDownFormWidget> createState() =>
@@ -133,23 +133,28 @@ class _CustomDropDownFormWidgetState extends State<CustomDropDownFormWidget> {
                       onChanged: widget.onChanged),
                 ),
               ),
-              _RoundIconButton(
-                icon: Icons.add,
-                onTap: () {
-                  setState(() {
-                    _addMode = !_addMode;
-                  });
-                },
-              ),
-              GestureDetector(
-                onTapDown: (details) {
-                  _showPopupMenu(details.globalPosition);
-                },
-                child: Icon(
-                  Icons.more_vert,
-                  size: 30,
-                  color: Colors.grey,
-                ),
+              if(!widget.hideOptions)
+              Row(
+                children: [
+                  _RoundIconButton(
+                    icon: Icons.add,
+                    onTap: () {
+                      setState(() {
+                        _addMode = !_addMode;
+                      });
+                    },
+                  ),
+                  GestureDetector(
+                    onTapDown: (details) {
+                      _showPopupMenu(details.globalPosition);
+                    },
+                    child: Icon(
+                      Icons.more_vert,
+                      size: 30,
+                      color: Colors.grey,
+                    ),
+                  ),
+                ],
               ),
             ],
           )

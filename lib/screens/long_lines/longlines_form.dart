@@ -26,6 +26,8 @@ class _LongLinesFormState extends State<LongLinesForm> {
   final _formKey = GlobalKey<FormState>();
   late String formType;
 
+  bool hideOptions = false;
+
   /***Form Properties */
   String id = '';
   String name = '';
@@ -231,7 +233,11 @@ class _LongLinesFormState extends State<LongLinesForm> {
                     alignment: Alignment.topRight,
                     child: Container(
                       child: ElevatedButton(
-                        onPressed: () {},
+                        onPressed: () {
+                          setState(() {
+                            hideOptions = true;
+                          });
+                        },
                         child: Text('Finalize Form'),
                         style: ElevatedButton.styleFrom(
                             primary: Colors.grey,
@@ -253,6 +259,7 @@ class _LongLinesFormState extends State<LongLinesForm> {
                   ),
                   SizedBox(height: size.height * .02),
                   CustomDropDownFormWidget(
+                    hideOptions: hideOptions,
                       labelText: 'Category *',
                       items: longLineCategory,
                       value: category,
@@ -292,7 +299,7 @@ class _LongLinesFormState extends State<LongLinesForm> {
                   ),
                   SizedBox(height: size.height * .02),
                   CustomDropDownFormWidget(
-                      removeButton: true,
+                      hideOptions: hideOptions,
                       labelText: 'Size *',
                       items: longLineSize,
                       value: lgsize,
@@ -304,7 +311,7 @@ class _LongLinesFormState extends State<LongLinesForm> {
                       }),
                   SizedBox(height: size.height * .02),
                   CustomDropDownFormWidget(
-                      removeButton: true,
+                      hideOptions: hideOptions,
                       labelText: 'Length *',
                       items: longLineLengths,
                       value: length,
@@ -316,7 +323,7 @@ class _LongLinesFormState extends State<LongLinesForm> {
                       }),
                   SizedBox(height: size.height * .02),
                   CustomDropDownFormWidget(
-                    removeButton: true,
+                    hideOptions: hideOptions,
                     labelText: 'Type *',
                     items: longLineTypes,
                     value: type,
@@ -329,6 +336,7 @@ class _LongLinesFormState extends State<LongLinesForm> {
                   ),
                   SizedBox(height: size.height * .02),
                   CustomDropDownFormWidget(
+                    hideOptions: hideOptions,
                     labelText: 'Safe Working Load *',
                     items: safeWorkingLoadItems,
                     value: safeWorkingLoad,
@@ -381,6 +389,7 @@ class _LongLinesFormState extends State<LongLinesForm> {
                           : null),
                   SizedBox(height: size.height * .03),
                   CustomDropDownFormWidget(
+                    hideOptions: hideOptions,
                     labelText: 'Time Between Overhauls *',
                     items: timeBetweenOverhaulsItems,
                     value: timeBetweenOverhauls,
