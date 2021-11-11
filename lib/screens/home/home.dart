@@ -3,7 +3,6 @@ import 'package:aerotec_flutter_app/models/longlines/longlines_model.dart';
 import 'package:aerotec_flutter_app/providers/longlines_provider.dart';
 import 'package:aerotec_flutter_app/screens/long_lines/longlines.dart';
 import 'package:aerotec_flutter_app/screens/long_lines/longlines_form.dart';
-import 'package:aerotec_flutter_app/screens/search/search.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
@@ -37,6 +36,8 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   late LongLinesProvider longLinesProvider;
+
+  bool _showSearch = false;
 
   void initState() {
     super.initState();
@@ -91,30 +92,57 @@ class _HomeScreenState extends State<HomeScreen> {
                   color: Colors.grey[300],
                   child: Row(
                     children: [
-                      Expanded(
-                          child: Text(
-                        'Long Lines',
-                        style: Theme.of(context)
-                            .textTheme
-                            .headline5!
-                            .copyWith(color: AppTheme.primary),
-                      )),
+                      if (!_showSearch)
+                        Expanded(
+                            child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              'Long Lines',
+                              style: TextStyle(
+                                  fontSize: 18, color: AppTheme.primary),
+                            ),
+                            RoundIconButton(
+                              icon: Icons.search,
+                              onTap: () {
+                                setState(() {
+                                  _showSearch = true;
+                                });
+                              },
+                            ),
+                          ],
+                        ))
+                      else
+                        Expanded(
+                            child: Container(
+                          height: 45,
+                          child: TextField(
+                            decoration: InputDecoration(
+                                filled: true,
+                                fillColor: Colors.white,
+                                prefixIcon: RoundIconButton(
+                                  icon: Icons.search,
+                                  onTap: () {
+                                    setState(() {
+                                      _showSearch = false;
+                                    });
+                                  },
+                                ),
+                                focusedBorder: OutlineInputBorder(
+                                    borderSide: BorderSide(color: Colors.white),
+                                    borderRadius: BorderRadius.circular(100)),
+                                border: OutlineInputBorder(
+                                    borderSide: BorderSide(color: Colors.white),
+                                    borderRadius: BorderRadius.circular(100))),
+                          ),
+                        )),
 
                       /// search
-                      RoundIconButton(
-                        icon: Icons.search,
-                        onTap: () {
-                          showSearch(
-                            context: context,
-                            delegate: CustomSearchDelegate(),
-                          );
-                        },
-                      ),
 
                       InkWell(
                         onTap: () {},
                         child: Container(
-                          padding: EdgeInsets.all(6),
+                          padding: EdgeInsets.all(10),
                           margin: EdgeInsets.symmetric(horizontal: 2),
                           decoration: BoxDecoration(
                             color: Colors.grey,
@@ -123,7 +151,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           child: Center(
                             child: ImageIcon(
                               AssetImage('images/menu.png'),
-                              size: 26,
+                              size: 18,
                               color: Colors.white,
                             ),
                           ),

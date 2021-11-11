@@ -155,7 +155,7 @@ class _LongLinesFormState extends State<LongLinesForm> {
             child: Padding(
               padding: const EdgeInsets.all(16.0),
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Container(
                     width: double.infinity,
@@ -188,16 +188,19 @@ class _LongLinesFormState extends State<LongLinesForm> {
                         ),
                         Positioned(
                           bottom: 10,
-                          right: 10,
+                          right: 50,
                           child: PopupMenuButton(
                             offset: Offset(-15, 50),
                             child: Container(
                                 width: 60,
                                 height: 60,
                                 decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  shape: BoxShape.circle,
-                                ),
+                                    color: Colors.white,
+                                    shape: BoxShape.circle,
+                                    border: Border.all(
+                                      width: 1,
+                                      color: Colors.grey,
+                                    )),
                                 child: Center(child: Icon(Icons.photo_camera))),
                             onSelected: (val) {
                               if (val == 0) {
@@ -217,19 +220,36 @@ class _LongLinesFormState extends State<LongLinesForm> {
                       ],
                     ),
                     decoration: BoxDecoration(
+                        shape: BoxShape.circle,
                         border: Border.all(
-                      width: 1,
-                      color: Colors.grey,
-                    )),
+                          width: 1,
+                          color: Colors.grey,
+                        )),
                   ),
                   SizedBox(height: size.height * .03),
-                  Text(
-                    'Category',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black,
+                  Align(
+                    alignment: Alignment.topRight,
+                    child: Container(
+                      child: ElevatedButton(
+                        onPressed: () {},
+                        child: Text('Finalize Form'),
+                        style: ElevatedButton.styleFrom(
+                            primary: Colors.grey,
+                            textStyle: TextStyle(color: Colors.white)),
+                      ),
                     ),
+                  ),
+                  Row(
+                    children: [
+                      Text(
+                        'Category',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black,
+                        ),
+                      ),
+                    ],
                   ),
                   SizedBox(height: size.height * .02),
                   CustomDropDownFormWidget(
@@ -377,13 +397,16 @@ class _LongLinesFormState extends State<LongLinesForm> {
                       return Center(
                         child: CircularProgressIndicator(),
                       );
-                    return ElevatedButton(
-                        child: Text('Submit'),
-                        onPressed: () {
-                          if (_formKey.currentState!.validate()) {
-                            submitForm();
-                          }
-                        });
+                    return SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton(
+                          child: Text('Submit'),
+                          onPressed: () {
+                            if (_formKey.currentState!.validate()) {
+                              submitForm();
+                            }
+                          }),
+                    );
                   }),
                 ],
               ),
