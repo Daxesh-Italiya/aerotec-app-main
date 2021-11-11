@@ -9,7 +9,8 @@ class DateTimePickerWidget extends StatelessWidget {
   final DateTime? initialValue;
   final String labelText;
 
-  DateTimePickerWidget({ Key? key, 
+  DateTimePickerWidget({
+    Key? key,
     required this.format,
     required this.onChanged,
     required this.initialValue,
@@ -29,6 +30,8 @@ class DateTimePickerWidget extends StatelessWidget {
         labelText: labelText,
         labelStyle: TextStyle(),
         fillColor: Colors.white,
+        suffixIcon: Icon(Icons.calendar_today_sharp),
+        hintText: 'Select Date',
         filled: true,
         enabledBorder: OutlineInputBorder(
           borderSide: BorderSide(
