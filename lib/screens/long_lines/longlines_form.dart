@@ -182,6 +182,7 @@ class _LongLinesFormState extends State<LongLinesForm> {
                                     )
                               : Container(
                                   decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
                                     image: DecorationImage(
                                         image: FileImage(_image!),
                                         fit: BoxFit.cover),
@@ -218,6 +219,16 @@ class _LongLinesFormState extends State<LongLinesForm> {
                                   value: 1, child: Text('Choose Image')),
                             ],
                           ),
+                        ),
+                        Positioned(
+                          top: 30,
+                          right: 10,
+                          child: Center(
+                              child: Icon(
+                            Icons.more_vert,
+                            color: Colors.grey,
+                                size: 35,
+                          )),
                         ),
                       ],
                     ),
@@ -259,7 +270,7 @@ class _LongLinesFormState extends State<LongLinesForm> {
                   ),
                   SizedBox(height: size.height * .02),
                   CustomDropDownFormWidget(
-                    hideOptions: hideOptions,
+                      hideOptions: hideOptions,
                       labelText: 'Category *',
                       items: longLineCategory,
                       value: category,
