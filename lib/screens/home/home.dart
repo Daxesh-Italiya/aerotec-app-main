@@ -92,50 +92,62 @@ class _HomeScreenState extends State<HomeScreen> {
                   color: Colors.grey[300],
                   child: Row(
                     children: [
-                      if (!_showSearch)
-                        Expanded(
-                            child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              'Long Lines',
-                              style: TextStyle(
-                                  fontSize: 18, color: AppTheme.primary),
+                      Expanded(
+                        child: AnimatedCrossFade(
+                          firstChild: Expanded(
+                              child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                'Long Lines',
+                                style: TextStyle(
+                                    fontSize: 18, color: AppTheme.primary),
+                              ),
+                              RoundIconButton(
+                                icon: Icons.search,
+                                onTap: () {
+                                  setState(() {
+                                    _showSearch = true;
+                                  });
+                                },
+                              ),
+                            ],
+                          )),
+                          secondChild: Expanded(
+                              child: Container(
+                            height: 45,
+                            child: TextField(
+                              autofocus: true,
+                              decoration: InputDecoration(
+                                  filled: true,
+                                  fillColor: Colors.white,
+                                  prefixIcon: RoundIconButton(
+                                    icon: Icons.search,
+                                    onTap: () {
+                                      setState(() {
+                                        _showSearch = false;
+                                        FocusScope.of(context)
+                                            .requestFocus(FocusNode());
+                                      });
+                                    },
+                                  ),
+                                  focusedBorder: OutlineInputBorder(
+                                      borderSide:
+                                          BorderSide(color: Color(0xFFB6B6B6)),
+                                      borderRadius: BorderRadius.circular(100)),
+                                  border: OutlineInputBorder(
+                                      borderSide:
+                                          BorderSide(color: Color(0xFFB6B6B6)),
+                                      borderRadius: BorderRadius.circular(100))),
                             ),
-                            RoundIconButton(
-                              icon: Icons.search,
-                              onTap: () {
-                                setState(() {
-                                  _showSearch = true;
-                                });
-                              },
-                            ),
-                          ],
-                        ))
-                      else
-                        Expanded(
-                            child: Container(
-                          height: 45,
-                          child: TextField(
-                            decoration: InputDecoration(
-                                filled: true,
-                                fillColor: Colors.white,
-                                prefixIcon: RoundIconButton(
-                                  icon: Icons.search,
-                                  onTap: () {
-                                    setState(() {
-                                      _showSearch = false;
-                                    });
-                                  },
-                                ),
-                                focusedBorder: OutlineInputBorder(
-                                    borderSide: BorderSide(color: Colors.white),
-                                    borderRadius: BorderRadius.circular(100)),
-                                border: OutlineInputBorder(
-                                    borderSide: BorderSide(color: Colors.white),
-                                    borderRadius: BorderRadius.circular(100))),
-                          ),
-                        )),
+                          )),
+                          crossFadeState: !_showSearch
+                              ? CrossFadeState.showFirst
+                              : CrossFadeState.showSecond,
+                          duration: const Duration(seconds: 1),
+                          sizeCurve: Curves.easeInOutExpo,
+                        ),
+                      ),
 
                       /// search
 
