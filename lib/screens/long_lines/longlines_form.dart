@@ -55,6 +55,20 @@ class _LongLinesFormState extends State<LongLinesForm> {
   List<String> timeBetweenOverhaulsItems = [];
   List<CategoryModel> categoryModels = [];
   final ValueNotifier<CategoryModel?> currentCategory = ValueNotifier(null);
+  final ValueNotifier<Map> formProperties = ValueNotifier({
+    'isFormSubmitted': false,
+    'isSizeVisible': true,
+    'isLengthVisible': true,
+    'isTypeVisible': true,
+    'isSwlVisible': true,
+    'isTboVisible': true
+  });
+  bool isFormSubmitted = false;
+  final isSizeVisible = ValueNotifier<bool>(true);
+  final isLengthVisible = ValueNotifier<bool>(true);
+  final isTypeVisible = ValueNotifier<bool>(true);
+  final isSwlVisible = ValueNotifier<bool>(true);
+  final isTboVisible = ValueNotifier<bool>(true);
 
   /***Form Properties */
   File? _image;
@@ -264,7 +278,14 @@ class _LongLinesFormState extends State<LongLinesForm> {
           .collection('categories')
           .add(longLine)
           .then((_) {
-        Navigator.of(context).pop();
+        formProperties.value = {
+          'isFormSubmitted': true,
+          'isSizeVisible': formProperties.value['isSizeVisible'],
+          'isLengthVisible': formProperties.value['isLengthVisible'],
+          'isTypeVisible': formProperties.value['isTypeVisible'],
+          'isSwlVisible': formProperties.value['isSwlVisible'],
+          'isTboVisible': formProperties.value['isTboVisible']
+        };
       });
     } catch (e) {
       log(e.toString());
@@ -301,7 +322,7 @@ class _LongLinesFormState extends State<LongLinesForm> {
     Field? partNoField;
     Field? dpisField;
     Field? dpField;
-    if (categoryModel != null) {
+    if (categoryModel != null && currentCategory.value != null) {
       nameField =
           categoryModel.fields.firstWhere((element) => element.name == 'Name');
       slNoField = categoryModel.fields
@@ -352,80 +373,155 @@ class _LongLinesFormState extends State<LongLinesForm> {
           ),
         ),
       ),
-      Padding(
+      ValueListenableBuilder<Map>(
         key: ValueKey('size'),
-        padding: const EdgeInsets.symmetric(vertical: 8.0),
-        child: ReorderableDropDownWidget(
-            key: ValueKey('size'),
-            removeButton: true,
-            isDraggable: true,
-            labelText: 'Size *',
-            items: sizeField == null ? [] : sizeField.options,
-            validator: (val) => lgsize == null ? 'Add a Size' : null,
-            onChanged: (val) {
-              setState(() {
-                lgsize = val;
-                longLineSize.add(val);
-              });
-              FocusScope.of(context).requestFocus(FocusNode());
-            }),
+        valueListenable: formProperties,
+        builder: (_, isFormSubmittedValue, child) {
+          return Visibility(
+            visible: isFormSubmittedValue['isSizeVisible'],
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 8.0),
+              child: ReorderableDropDownWidget(
+                  key: ValueKey('size'),
+                  onRemove: () {
+                    formProperties.value = {
+                      'isFormSubmitted':
+                          formProperties.value['isFormSubmitted'],
+                      'isSizeVisible': false,
+                      'isLengthVisible':
+                          formProperties.value['isLengthVisible'],
+                      'isTypeVisible': formProperties.value['isTypeVisible'],
+                      'isSwlVisible': formProperties.value['isSwlVisible'],
+                      'isTboVisible': formProperties.value['isTboVisible']
+                    };
+                  },
+                  isDraggable: !isFormSubmittedValue['isFormSubmitted'],
+                  addRemoveButton: !isFormSubmittedValue['isFormSubmitted'],
+                  labelText: 'Size *',
+                  items: sizeField == null ? [] : sizeField.options,
+                  validator: (val) => lgsize == null ? 'Add a Size' : null,
+                  onChanged: (val) {
+                    setState(() {
+                      lgsize = val;
+                      longLineSize.add(val);
+                    });
+                    FocusScope.of(context).requestFocus(FocusNode());
+                  }),
+            ),
+          );
+        },
       ),
-      Padding(
+      ValueListenableBuilder<Map>(
         key: ValueKey('length'),
-        padding: const EdgeInsets.symmetric(vertical: 8.0),
-        child: ReorderableDropDownWidget(
-            key: ValueKey('length'),
-            removeButton: true,
-            isDraggable: true,
-            labelText: 'Length *',
-            items: lengthField == null ? [] : lengthField.options,
-            validator: (val) => length == null ? 'Add a length' : null,
-            onChanged: (val) {
-              setState(() {
-                length = val;
-                longLineLengths.add(val);
-              });
-              FocusScope.of(context).requestFocus(FocusNode());
-            }),
+        valueListenable: formProperties,
+        builder: (_, isFormSubmittedValue, child) {
+          return Visibility(
+            visible: isFormSubmittedValue['isLengthVisible'],
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 8.0),
+              child: ReorderableDropDownWidget(
+                  key: ValueKey('length'),
+                  onRemove: () {
+                    formProperties.value = {
+                      'isFormSubmitted':
+                          formProperties.value['isFormSubmitted'],
+                      'isSizeVisible': formProperties.value['isSizeVisible'],
+                      'isLengthVisible': false,
+                      'isTypeVisible': formProperties.value['isTypeVisible'],
+                      'isSwlVisible': formProperties.value['isSwlVisible'],
+                      'isTboVisible': formProperties.value['isTboVisible']
+                    };
+                  },
+                  isDraggable: !isFormSubmittedValue['isFormSubmitted'],
+                  addRemoveButton: !isFormSubmittedValue['isFormSubmitted'],
+                  labelText: 'Length *',
+                  items: lengthField == null ? [] : lengthField.options,
+                  validator: (val) => length == null ? 'Add a length' : null,
+                  onChanged: (val) {
+                    setState(() {
+                      length = val;
+                      longLineLengths.add(val);
+                    });
+                    FocusScope.of(context).requestFocus(FocusNode());
+                  }),
+            ),
+          );
+        },
       ),
-      Padding(
+      ValueListenableBuilder<Map>(
+        valueListenable: formProperties,
         key: ValueKey('type'),
-        padding: const EdgeInsets.symmetric(vertical: 8.0),
-        child: ReorderableDropDownWidget(
-          key: ValueKey('type'),
-          removeButton: true,
-          isDraggable: true,
-          labelText: 'Type *',
-          items: typeField == null ? [] : typeField.options,
-          validator: (val) => type == null ? 'Add/Select Type' : null,
-          onChanged: (val) {
-            setState(() {
-              type = val;
-              longLineTypes.add(val);
-            });
-            FocusScope.of(context).requestFocus(FocusNode());
-          },
-        ),
+        builder: (_, isFormSubmittedValue, child) {
+          return Visibility(
+            visible: isFormSubmittedValue['isTypeVisible'],
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 8.0),
+              child: ReorderableDropDownWidget(
+                key: ValueKey('type'),
+                onRemove: () {
+                  formProperties.value = {
+                    'isFormSubmitted': formProperties.value['isFormSubmitted'],
+                    'isSizeVisible': formProperties.value['isSizeVisible'],
+                    'isLengthVisible': formProperties.value['isLengthVisible'],
+                    'isTypeVisible': false,
+                    'isSwlVisible': formProperties.value['isSwlVisible'],
+                    'isTboVisible': formProperties.value['isTboVisible']
+                  };
+                },
+                isDraggable: !isFormSubmittedValue['isFormSubmitted'],
+                addRemoveButton: !isFormSubmittedValue['isFormSubmitted'],
+                labelText: 'Type *',
+                items: typeField == null ? [] : typeField.options,
+                validator: (val) => type == null ? 'Add/Select Type' : null,
+                onChanged: (val) {
+                  setState(() {
+                    type = val;
+                    longLineTypes.add(val);
+                  });
+                  FocusScope.of(context).requestFocus(FocusNode());
+                },
+              ),
+            ),
+          );
+        },
       ),
-      Padding(
-        padding: const EdgeInsets.symmetric(vertical: 8.0),
+      ValueListenableBuilder<Map>(
+        valueListenable: formProperties,
         key: ValueKey('swl'),
-        child: ReorderableDropDownWidget(
-          key: ValueKey('swl'),
-          isDraggable: true,
-          labelText: 'Safe Working Load *',
-          items: swlField == null ? [] : swlField.options,
-          removeButton: true,
-          validator: (val) =>
-              safeWorkingLoad == null ? 'Add a safe working load' : null,
-          onChanged: (val) {
-            setState(() {
-              safeWorkingLoad = val;
-              safeWorkingLoadItems.add(val);
-            });
-            FocusScope.of(context).requestFocus(FocusNode());
-          },
-        ),
+        builder: (_, isFormSubmittedValue, child) {
+          return Visibility(
+            visible: isFormSubmittedValue['isSwlVisible'],
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 8.0),
+              child: ReorderableDropDownWidget(
+                key: ValueKey('swl'),
+                onRemove: () {
+                  formProperties.value = {
+                    'isFormSubmitted': formProperties.value['isFormSubmitted'],
+                    'isSizeVisible': formProperties.value['isSizeVisible'],
+                    'isLengthVisible': formProperties.value['isLengthVisible'],
+                    'isTypeVisible': formProperties.value['isTypeVisible'],
+                    'isSwlVisible': false,
+                    'isTboVisible': formProperties.value['isTboVisible']
+                  };
+                },
+                isDraggable: !isFormSubmittedValue['isFormSubmitted'],
+                addRemoveButton: !isFormSubmittedValue['isFormSubmitted'],
+                labelText: 'Safe Working Load *',
+                items: swlField == null ? [] : swlField.options,
+                validator: (val) =>
+                    safeWorkingLoad == null ? 'Add a safe working load' : null,
+                onChanged: (val) {
+                  setState(() {
+                    safeWorkingLoad = val;
+                    safeWorkingLoadItems.add(val);
+                  });
+                  FocusScope.of(context).requestFocus(FocusNode());
+                },
+              ),
+            ),
+          );
+        },
       ),
       Padding(
         padding: const EdgeInsets.symmetric(vertical: 8.0),
@@ -480,24 +576,43 @@ class _LongLinesFormState extends State<LongLinesForm> {
                       : null),
         ),
       ),
-      Padding(
+      ValueListenableBuilder<Map>(
+        valueListenable: formProperties,
         key: ValueKey('tbo'),
-        padding: const EdgeInsets.symmetric(vertical: 8.0),
-        child: ReorderableDropDownWidget(
-          key: ValueKey('tbo'),
-          isDraggable: true,
-          labelText: 'Time Between Overhauls *',
-          items: tboField == null ? [] : tboField.options,
-          validator: (val) =>
-              timeBetweenOverhauls == null ? 'Add a time' : null,
-          onChanged: (val) {
-            setState(() {
-              timeBetweenOverhaulsItems.add(val);
-              timeBetweenOverhauls = val;
-            });
-            FocusScope.of(context).requestFocus(FocusNode());
-          },
-        ),
+        builder: (_, isFormSubmittedValue, child) {
+          return Padding(
+            padding: const EdgeInsets.symmetric(vertical: 8.0),
+            child: Visibility(
+              visible: isFormSubmittedValue['isTboVisible'],
+              child: ReorderableDropDownWidget(
+                key: ValueKey('tbo'),
+                onRemove: () {
+                  formProperties.value = {
+                    'isFormSubmitted': formProperties.value['isFormSubmitted'],
+                    'isSizeVisible': formProperties.value['isSizeVisible'],
+                    'isLengthVisible': formProperties.value['isLengthVisible'],
+                    'isTypeVisible': formProperties.value['isTypeVisible'],
+                    'isSwlVisible': formProperties.value['isSwlVisible'],
+                    'isTboVisible': false
+                  };
+                },
+                isDraggable: !isFormSubmittedValue['isFormSubmitted'],
+                addRemoveButton: !isFormSubmittedValue['isFormSubmitted'],
+                labelText: 'Time Between Overhauls *',
+                items: tboField == null ? [] : tboField.options,
+                validator: (val) =>
+                    timeBetweenOverhauls == null ? 'Add a time' : null,
+                onChanged: (val) {
+                  setState(() {
+                    timeBetweenOverhaulsItems.add(val);
+                    timeBetweenOverhauls = val;
+                  });
+                  FocusScope.of(context).requestFocus(FocusNode());
+                },
+              ),
+            ),
+          );
+        },
       )
     ];
   }
@@ -537,7 +652,6 @@ class _LongLinesFormState extends State<LongLinesForm> {
                   ValueListenableBuilder<bool>(
                     valueListenable: otherDataVisible,
                     builder: (_, otherDataVisibleValue, child) {
-                      log('value changed');
                       return Visibility(
                         visible: otherDataVisibleValue,
                         child: Column(
@@ -611,12 +725,36 @@ class _LongLinesFormState extends State<LongLinesForm> {
                                   Positioned(
                                     top: 30,
                                     right: 10,
-                                    child: Center(
-                                        child: Icon(
-                                      Icons.more_vert,
-                                      color: Colors.grey,
-                                      size: 35,
-                                    )),
+                                    child: PopupMenuButton(
+                                      onSelected: (val) {
+                                        if (val == 0) {
+                                          formProperties.value = {
+                                            'isFormSubmitted': false,
+                                            'isSizeVisible': formProperties
+                                                .value['isSizeVisible'],
+                                            'isLengthVisible': formProperties
+                                                .value['isLengthVisible'],
+                                            'isTypeVisible': formProperties
+                                                .value['isTypeVisible'],
+                                            'isSwlVisible': formProperties
+                                                .value['isSwlVisible'],
+                                            'isTboVisible': formProperties
+                                                .value['isTboVisible']
+                                          };
+                                        }
+                                      },
+                                      itemBuilder: (context) => [
+                                        PopupMenuItem(
+                                            value: 0,
+                                            child: Text('Modify Form')),
+                                      ],
+                                      child: Center(
+                                          child: Icon(
+                                        Icons.more_vert,
+                                        color: Colors.grey,
+                                        size: 35,
+                                      )),
+                                    ),
                                   ),
                                 ],
                               ),
@@ -633,9 +771,7 @@ class _LongLinesFormState extends State<LongLinesForm> {
                               child: Container(
                                 child: ElevatedButton(
                                   onPressed: () {
-                                    setState(() {
-                                      // hideOptions = true;
-                                    });
+                                    submitForm();
                                   },
                                   child: Text('Finalize Form'),
                                   style: ElevatedButton.styleFrom(
@@ -673,7 +809,7 @@ class _LongLinesFormState extends State<LongLinesForm> {
                           key: ValueKey('cat'),
                           labelText: 'Category *',
                           items: categories != null && categories.isNotEmpty
-                              ? categories
+                              ? categories.map((cat) => cat.name).toList()
                               : [],
                           validator: (val) =>
                               category == null ? 'Add a Category' : null,
@@ -686,7 +822,30 @@ class _LongLinesFormState extends State<LongLinesForm> {
                                       .toList();
                               if (filteredCats != null &&
                                   filteredCats.isNotEmpty) {
+                                filteredCats.forEach((element) {
+                                  log(element.name);
+                                });
                                 currentCategory.value = filteredCats.first;
+                                formProperties.value = {
+                                  'isFormSubmitted': true,
+                                  'isSizeVisible':
+                                      formProperties.value['isSizeVisible'],
+                                  'isLengthVisible':
+                                      formProperties.value['isLengthVisible'],
+                                  'isTypeVisible':
+                                      formProperties.value['isTypeVisible'],
+                                  'isSwlVisible':
+                                      formProperties.value['isSwlVisible'],
+                                  'isTboVisible':
+                                      formProperties.value['isTboVisible']
+                                };
+                              } else {
+                                try {
+                                  categories.add(CategoryModel(
+                                      fields: [], name: val, id: null));
+                                } catch (e) {
+                                  log(e.toString());
+                                }
                               }
                               ;
                             });
@@ -767,8 +926,6 @@ class _LongLinesFormState extends State<LongLinesForm> {
                                     final newUpdatedIndex = newIndex > oldIndex
                                         ? newIndex - 1
                                         : newIndex;
-                                    log('oldindex:  and newIndex: ',
-                                        name: 'index');
                                     final currentItem =
                                         reorderableMaintenanceItems
                                             .value[oldIndex];

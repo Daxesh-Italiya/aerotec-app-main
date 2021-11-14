@@ -1,7 +1,6 @@
 import 'dart:developer' as dev;
 import 'dart:math';
 
-import 'package:aerotec_flutter_app/models/longlines/category_model.dart';
 import 'package:aerotec_flutter_app/widgets/widgets.dart';
 import 'package:flutter/material.dart';
 
@@ -248,9 +247,10 @@ class ReorderableDropDownWidget extends StatefulWidget {
   final onChanged;
   final validator;
   final String labelText;
-  final bool removeButton;
+  final bool addRemoveButton;
   final bool? isDraggable;
   final Key key;
+  final onRemove;
 
   ReorderableDropDownWidget(
       {required this.items,
@@ -258,8 +258,9 @@ class ReorderableDropDownWidget extends StatefulWidget {
       required this.labelText,
       required this.validator,
       required this.key,
+      required this.onRemove,
       this.isDraggable = false,
-      this.removeButton = false});
+      required this.addRemoveButton});
 
   @override
   State<ReorderableDropDownWidget> createState() =>
@@ -335,24 +336,19 @@ class _ReorderableDropDownWidgetState extends State<ReorderableDropDownWidget> {
               );
             },
           ),
-          _RoundIconButton(
-            icon: Icons.add,
-            onTap: () {
-              setState(() {
-                _addMode = !_addMode;
-              });
-            },
-          ),
-          if (widget.removeButton)
+          if (widget.addRemoveButton)
+            _RoundIconButton(
+              icon: Icons.add,
+              onTap: () {
+                setState(() {
+                  _addMode = !_addMode;
+                });
+              },
+            ),
+          if (widget.addRemoveButton)
             _RoundIconButton(
               icon: Icons.remove,
-              onTap: () {
-                if (_items.isNotEmpty)
-                  setState(() {
-                    // _items.remove(widget.value);
-                    widget.onChanged(widget.items[0]);
-                  });
-              },
+              onTap: widget.onRemove,
             )
         ],
       );
@@ -402,7 +398,7 @@ class _ReorderableDropDownWidgetState extends State<ReorderableDropDownWidget> {
 }
 
 class ReorderableCatDropDownWidget extends StatefulWidget {
-  final List<CategoryModel> items;
+  final List<String> items;
   final onChanged;
   final validator;
   final String labelText;
@@ -426,7 +422,7 @@ class ReorderableCatDropDownWidget extends StatefulWidget {
 
 class _ReorderableCatDropDownWidgetState
     extends State<ReorderableCatDropDownWidget> {
-  final List<CategoryModel> _items = [];
+  final List<String> _items = [];
 
   bool _addMode = false;
 
@@ -472,16 +468,15 @@ class _ReorderableCatDropDownWidgetState
                       ),
                       isExpanded: true,
                       selectedItemBuilder: (context) {
-                        return (widget.items + _items)
-                            .map((CategoryModel item) {
-                          return Text(item.name);
+                        return (widget.items + _items).map((String item) {
+                          return Text(item);
                         }).toList();
                       },
                       items: (widget.items + _items).map(
-                        (CategoryModel item) {
+                        (String item) {
                           return DropdownMenuItem(
-                            child: Text(item.name),
-                            value: item.name,
+                            child: Text(item),
+                            value: item,
                           );
                         },
                       ).toList(),
@@ -535,7 +530,7 @@ class _ReorderableCatDropDownWidgetState
             onTap: () {
               if (value.isNotEmpty)
                 setState(() {
-                  _items.add(CategoryModel(fields: [], name: value, id: null));
+                  // _items.add(value);
 
                   widget.onChanged(value);
                   categoryNotifier.value = value;
