@@ -21,37 +21,40 @@ class TextFieldWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return TextFormField(
-      obscureText: obscureText,
-      initialValue: initialValue,
-      autofocus: autofocus,
-      decoration: InputDecoration(
-        floatingLabelBehavior: FloatingLabelBehavior.always,
-        labelText: labelText,
-        labelStyle: TextStyle(),
-        enabledBorder: OutlineInputBorder(
-          borderSide: BorderSide(
-            color: Colors.grey,
-            width: 1.0,
-          ),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderSide: BorderSide(
-            color: Colors.lightBlue,
-            width: 2.0,
-          ),
-        ),
-        errorBorder: OutlineInputBorder(
+    return Container(
+      height: 50,
+      child: TextFormField(
+        obscureText: obscureText,
+        initialValue: initialValue,
+        autofocus: autofocus,
+        decoration: InputDecoration(
+          floatingLabelBehavior: FloatingLabelBehavior.always,
+          labelText: labelText,
+          labelStyle: TextStyle(),
+          enabledBorder: OutlineInputBorder(
             borderSide: BorderSide(
-          color: Colors.red,
-          width: 2.0,
-        )),
-        fillColor: Colors.white,
-        filled: true,
+              color: Colors.grey,
+              width: 1.0,
+            ),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderSide: BorderSide(
+              color: Colors.lightBlue,
+              width: 2.0,
+            ),
+          ),
+          errorBorder: OutlineInputBorder(
+              borderSide: BorderSide(
+            color: Colors.red,
+            width: 2.0,
+          )),
+          fillColor: Colors.white,
+          filled: true,
+        ),
+        textCapitalization: textCapitalization,
+        onChanged: onChanged,
+        validator: validator,
       ),
-      textCapitalization: textCapitalization,
-      onChanged: onChanged,
-      validator: validator,
     );
   }
 }

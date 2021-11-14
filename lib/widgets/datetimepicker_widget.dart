@@ -20,34 +20,37 @@ class DateTimePickerWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return DateTimeField(
-      validator: validator,
-      format: format,
-      onChanged: onChanged,
-      initialValue: initialValue,
-      decoration: InputDecoration(
-        floatingLabelBehavior: FloatingLabelBehavior.always,
-        labelText: labelText,
-        labelStyle: TextStyle(),
-        fillColor: Colors.white,
-        suffixIcon: Icon(Icons.calendar_today_sharp),
-        hintText: 'Select Date',
-        filled: true,
-        enabledBorder: OutlineInputBorder(
-          borderSide: BorderSide(
-            color: Colors.grey,
-            width: 1.0,
+    return Container(
+      height: 55,
+      child: DateTimeField(
+        validator: validator,
+        format: format,
+        onChanged: onChanged,
+        initialValue: initialValue,
+        decoration: InputDecoration(
+          floatingLabelBehavior: FloatingLabelBehavior.always,
+          labelText: labelText,
+          labelStyle: TextStyle(),
+          fillColor: Colors.white,
+          suffixIcon: Icon(Icons.calendar_today_sharp),
+          hintText: 'Select Date',
+          filled: true,
+          enabledBorder: OutlineInputBorder(
+            borderSide: BorderSide(
+              color: Colors.grey,
+              width: 1.0,
+            ),
           ),
         ),
+        onShowPicker: (context, currentValue) {
+          return showDatePicker(
+            context: context,
+            initialDate: currentValue ?? DateTime.now(),
+            firstDate: DateTime(1900),
+            lastDate: DateTime(2100),
+          );
+        },
       ),
-      onShowPicker: (context, currentValue) {
-        return showDatePicker(
-          context: context,
-          initialDate: currentValue ?? DateTime.now(),
-          firstDate: DateTime(1900),
-          lastDate: DateTime(2100),
-        );
-      },
     );
   }
 }

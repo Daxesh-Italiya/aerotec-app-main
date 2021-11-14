@@ -289,46 +289,49 @@ class _ReorderableDropDownWidgetState extends State<ReorderableDropDownWidget> {
             valueListenable: categoryNotifier,
             builder: (_, catValue, child) {
               return Expanded(
-                child: DropdownButtonFormField(
-                    hint: Text('- select or add new -'),
-                    validator: widget.validator,
-                    decoration: InputDecoration(
-                      labelText: widget.labelText,
-                      enabledBorder: OutlineInputBorder(
-                        borderSide: BorderSide(
-                          color: Colors.grey,
-                          width: 1.0,
+                child: Container(
+                  height: 55,
+                  child: DropdownButtonFormField(
+                      hint: Text('- select or add new -'),
+                      validator: widget.validator,
+                      decoration: InputDecoration(
+                        labelText: widget.labelText,
+                        enabledBorder: OutlineInputBorder(
+                          borderSide: BorderSide(
+                            color: Colors.grey,
+                            width: 1.0,
+                          ),
                         ),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderSide: BorderSide(
-                          color: Colors.lightBlue,
-                          width: 2.0,
+                        focusedBorder: OutlineInputBorder(
+                          borderSide: BorderSide(
+                            color: Colors.lightBlue,
+                            width: 2.0,
+                          ),
                         ),
+                        fillColor: Colors.white,
+                        filled: true,
                       ),
-                      fillColor: Colors.white,
-                      filled: true,
-                    ),
-                    isExpanded: true,
-                    selectedItemBuilder: (context) {
-                      return (widget.items + _items).map((dynamic item) {
-                        return Text(item.toString());
-                      }).toList();
-                    },
-                    items: (widget.items + _items).map(
-                      (dynamic item) {
-                        return DropdownMenuItem(
-                          child: Text(item.toString()),
-                          value: item,
-                        );
+                      isExpanded: true,
+                      selectedItemBuilder: (context) {
+                        return (widget.items + _items).map((dynamic item) {
+                          return Text(item.toString());
+                        }).toList();
                       },
-                    ).toList(),
-                    value: catValue,
-                    onChanged: (val) {
-                      dev.log(val.toString(), name: 'check');
-                      categoryNotifier.value = val as String?;
-                      widget.onChanged(val);
-                    }),
+                      items: (widget.items + _items).map(
+                        (dynamic item) {
+                          return DropdownMenuItem(
+                            child: Text(item.toString()),
+                            value: item,
+                          );
+                        },
+                      ).toList(),
+                      value: catValue,
+                      onChanged: (val) {
+                        dev.log(val.toString(), name: 'check');
+                        categoryNotifier.value = val as String?;
+                        widget.onChanged(val);
+                      }),
+                ),
               );
             },
           ),
@@ -445,45 +448,49 @@ class _ReorderableCatDropDownWidgetState
             valueListenable: categoryNotifier,
             builder: (_, catValue, child) {
               return Expanded(
-                child: DropdownButtonFormField(
-                    hint: Text('- select or add new -'),
-                    validator: widget.validator,
-                    decoration: InputDecoration(
-                      labelText: widget.labelText,
-                      enabledBorder: OutlineInputBorder(
-                        borderSide: BorderSide(
-                          color: Colors.grey,
-                          width: 1.0,
+                child: Container(
+                  height: 55,
+                  child: DropdownButtonFormField(
+                      hint: Text('- select or add new -'),
+                      validator: widget.validator,
+                      decoration: InputDecoration(
+                        labelText: widget.labelText,
+                        enabledBorder: OutlineInputBorder(
+                          borderSide: BorderSide(
+                            color: Colors.grey,
+                            width: 1.0,
+                          ),
                         ),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderSide: BorderSide(
-                          color: Colors.lightBlue,
-                          width: 2.0,
+                        focusedBorder: OutlineInputBorder(
+                          borderSide: BorderSide(
+                            color: Colors.lightBlue,
+                            width: 2.0,
+                          ),
                         ),
+                        fillColor: Colors.white,
+                        filled: true,
                       ),
-                      fillColor: Colors.white,
-                      filled: true,
-                    ),
-                    isExpanded: true,
-                    selectedItemBuilder: (context) {
-                      return (widget.items + _items).map((CategoryModel item) {
-                        return Text(item.name);
-                      }).toList();
-                    },
-                    items: (widget.items + _items).map(
-                      (CategoryModel item) {
-                        return DropdownMenuItem(
-                          child: Text(item.name),
-                          value: item.name,
-                        );
+                      isExpanded: true,
+                      selectedItemBuilder: (context) {
+                        return (widget.items + _items)
+                            .map((CategoryModel item) {
+                          return Text(item.name);
+                        }).toList();
                       },
-                    ).toList(),
-                    value: catValue,
-                    onChanged: (val) {
-                      categoryNotifier.value = val as String?;
-                      widget.onChanged(val);
-                    }),
+                      items: (widget.items + _items).map(
+                        (CategoryModel item) {
+                          return DropdownMenuItem(
+                            child: Text(item.name),
+                            value: item.name,
+                          );
+                        },
+                      ).toList(),
+                      value: catValue,
+                      onChanged: (val) {
+                        categoryNotifier.value = val as String?;
+                        widget.onChanged(val);
+                      }),
+                ),
               );
             },
           ),
