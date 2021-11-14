@@ -1,13 +1,13 @@
 import 'package:aerotec_flutter_app/providers/components_provider.dart';
 import 'package:aerotec_flutter_app/providers/user_provider.dart';
-import 'package:aerotec_flutter_app/screens/authentication/check_authentication.dart';
 import 'package:aerotec_flutter_app/widgets/widgets.dart';
-import 'package:flutter/services.dart';
-import 'providers/longlines_provider.dart';
-import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'screens/main_tabbar/main_tabbar.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
+
+import 'providers/longlines_provider.dart';
+import 'screens/main_tabbar/main_tabbar.dart';
 
 
 void main() {
@@ -46,7 +46,7 @@ class MyApp extends StatelessWidget {
                 primarySwatch: Colors.blue,
                 visualDensity: VisualDensity.adaptivePlatformDensity,
               ),
-              home: CheckAuthentication(),
+              home: MainTabbar(),
             ),
           );
         }

@@ -1,3 +1,4 @@
+import 'dart:developer' as dev;
 import 'dart:math';
 
 import 'package:aerotec_flutter_app/widgets/widgets.dart';
@@ -64,6 +65,8 @@ class CustomDropDownFormWidget extends StatefulWidget {
   final validator;
   final String labelText;
   final bool removeButton;
+  final bool? isDraggable;
+  final Key key;
 
   CustomDropDownFormWidget(
       {required this.items,
@@ -71,6 +74,8 @@ class CustomDropDownFormWidget extends StatefulWidget {
       required this.onChanged,
       required this.labelText,
       required this.validator,
+      required this.key,
+      this.isDraggable = false,
       this.removeButton = false});
 
   @override
@@ -90,6 +95,12 @@ class _CustomDropDownFormWidgetState extends State<CustomDropDownFormWidget> {
     if (!_addMode)
       return Row(
         children: [
+          if (widget.isDraggable!)
+            Icon(
+              Icons.drag_indicator,
+              size: 27,
+              color: Colors.grey,
+            ),
           Expanded(
             child: DropdownButtonFormField(
                 validator: widget.validator,
@@ -168,8 +179,7 @@ class _CustomDropDownFormWidgetState extends State<CustomDropDownFormWidget> {
             onTap: () {
               if (value.isNotEmpty)
                 setState(() {
-                  _items.add(value);
-
+                  // _items.add(value);
                   widget.onChanged(value);
                   value = '';
 
@@ -213,12 +223,172 @@ class _RoundIconButton extends StatelessWidget {
           decoration: BoxDecoration(
               color: Colors.white,
               shape: BoxShape.circle,
-              border: Border.all(color: Color(0xFFB6B6B6),)),
+              border: Border.all(
+                color: Color(0xFFB6B6B6),
+              )),
           child: Icon(
             icon,
             size: 26,
             color: Color(0xFF6D6D6D),
           )),
     );
+  }
+}
+
+//For Category Specific
+
+class CustomDropDownCatFormWidget extends StatefulWidget {
+  final List<String> items;
+  final onChanged;
+  final validator;
+  final String labelText;
+  final bool removeButton;
+  final bool? isDraggable;
+  final Key key;
+
+  CustomDropDownCatFormWidget(
+      {required this.items,
+      required this.onChanged,
+      required this.labelText,
+      required this.validator,
+      required this.key,
+      this.isDraggable = false,
+      this.removeButton = false});
+
+  @override
+  State<CustomDropDownCatFormWidget> createState() =>
+      _CustomDropDownCatFormWidgetState();
+}
+
+class _CustomDropDownCatFormWidgetState
+    extends State<CustomDropDownCatFormWidget> {
+  final List<String> _items = [];
+
+  bool _addMode = false;
+
+  final categoryNotifier = ValueNotifier<String?>(null);
+  String value = '';
+
+  @override
+  Widget build(BuildContext context) {
+    if (!_addMode)
+      return Row(
+        children: [
+          if (widget.isDraggable!)
+            Icon(
+              Icons.drag_indicator,
+              size: 27,
+              color: Colors.grey,
+            ),
+          ValueListenableBuilder<String?>(
+            valueListenable: categoryNotifier,
+            builder: (_, catValue, child) {
+              return Expanded(
+                child: DropdownButtonFormField(
+                    hint: Text('- select or add new -'),
+                    validator: widget.validator,
+                    decoration: InputDecoration(
+                      labelText: widget.labelText,
+                      enabledBorder: OutlineInputBorder(
+                        borderSide: BorderSide(
+                          color: Colors.grey,
+                          width: 1.0,
+                        ),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderSide: BorderSide(
+                          color: Colors.lightBlue,
+                          width: 2.0,
+                        ),
+                      ),
+                      fillColor: Colors.white,
+                      filled: true,
+                    ),
+                    isExpanded: true,
+                    selectedItemBuilder: (context) {
+                      return (widget.items + _items).map((String item) {
+                        return Text(item);
+                      }).toList();
+                    },
+                    items: (widget.items + _items).map(
+                      (String item) {
+                        return DropdownMenuItem(
+                          child: Text(item),
+                          value: item,
+                        );
+                      },
+                    ).toList(),
+                    value: catValue,
+                    onChanged: (val) {
+                      dev.log(val.toString(), name: 'check');
+                      categoryNotifier.value = val as String?;
+                      widget.onChanged(val);
+                    }),
+              );
+            },
+          ),
+          _RoundIconButton(
+            icon: Icons.add,
+            onTap: () {
+              setState(() {
+                _addMode = !_addMode;
+              });
+            },
+          ),
+          if (widget.removeButton)
+            _RoundIconButton(
+              icon: Icons.remove,
+              onTap: () {
+                if (_items.isNotEmpty)
+                  setState(() {
+                    // _items.remove(widget.value);
+                    widget.onChanged(widget.items[0]);
+                  });
+              },
+            )
+        ],
+      );
+    else
+      return Row(
+        children: [
+          Expanded(
+            child: TextFieldWidget(
+              autofocus: true,
+              textCapitalization: TextCapitalization.sentences,
+              obscureText: false,
+              initialValue: '',
+              onChanged: (val) => setState(() => value = val),
+              validator: (val) =>
+                  categoryNotifier == '' ? 'Add ${widget.labelText}' : null,
+              labelText: 'Add ${widget.labelText}',
+            ),
+          ),
+          _RoundIconButton(
+            icon: Icons.done,
+            onTap: () {
+              if (value.isNotEmpty)
+                setState(() {
+                  _items.add(value);
+
+                  widget.onChanged(value);
+                  categoryNotifier.value = value;
+
+                  _addMode = !_addMode;
+                });
+            },
+          ),
+          Transform.rotate(
+            angle: pi / 4,
+            child: _RoundIconButton(
+              icon: Icons.add,
+              onTap: () {
+                setState(() {
+                  _addMode = !_addMode;
+                });
+              },
+            ),
+          )
+        ],
+      );
   }
 }
