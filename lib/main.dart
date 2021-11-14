@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
+import 'providers/categories_provider.dart';
 import 'providers/longlines_provider.dart';
 import 'screens/main_tabbar/main_tabbar.dart';
 
@@ -37,7 +38,8 @@ class MyApp extends StatelessWidget {
             providers: [
               ChangeNotifierProvider(create: (context) => LongLinesProvider()),
               ChangeNotifierProvider(create: (context) => ComponentsProvider()),
-              ChangeNotifierProvider(create: (context) => UserProvider())
+              ChangeNotifierProvider(create: (context) => UserProvider()),
+              ChangeNotifierProvider(create: (context) => CategoriesProvider()),
             ],
             child: MaterialApp(
               debugShowCheckedModeBanner: false,

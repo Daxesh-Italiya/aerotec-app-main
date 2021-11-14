@@ -51,3 +51,25 @@ class DateTimePickerWidget extends StatelessWidget {
     );
   }
 }
+
+class ReorderableDateTimePickerWidget extends StatelessWidget {
+  final Widget child;
+
+  ReorderableDateTimePickerWidget({required this.child});
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Icon(
+          Icons.drag_indicator,
+          size: 27,
+          color: Colors.grey,
+        ),
+        Expanded(
+          child: child,
+        )
+      ],
+    );
+  }
+}

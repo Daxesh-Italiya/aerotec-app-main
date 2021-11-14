@@ -1,9 +1,9 @@
 import 'package:aerotec_flutter_app/constants/constants.dart';
 import 'package:aerotec_flutter_app/models/longlines/longlines_model.dart';
+import 'package:aerotec_flutter_app/providers/categories_provider.dart';
 import 'package:aerotec_flutter_app/providers/longlines_provider.dart';
 import 'package:aerotec_flutter_app/screens/long_lines/longlines.dart';
 import 'package:aerotec_flutter_app/screens/long_lines/longlines_form.dart';
-import 'package:aerotec_flutter_app/screens/search/search.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
@@ -37,14 +37,20 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   late LongLinesProvider longLinesProvider;
+  late CategoriesProvider categoriesProvider;
+
+  bool _showSearch = false;
 
   void initState() {
     super.initState();
     longLinesProvider = Provider.of<LongLinesProvider>(context, listen: false);
+    categoriesProvider =
+        Provider.of<CategoriesProvider>(context, listen: false);
     Future.delayed(
       const Duration(milliseconds: 1000),
       () async {
         longLinesProvider.subData();
+        categoriesProvider.subData();
       },
     );
   }
@@ -92,29 +98,68 @@ class _HomeScreenState extends State<HomeScreen> {
                   child: Row(
                     children: [
                       Expanded(
-                          child: Text(
-                        'Long Lines',
-                        style: Theme.of(context)
-                            .textTheme
-                            .headline5!
-                            .copyWith(color: AppTheme.primary),
-                      )),
-
-                      /// search
-                      RoundIconButton(
-                        icon: Icons.search,
-                        onTap: () {
-                          showSearch(
-                            context: context,
-                            delegate: CustomSearchDelegate(),
-                          );
-                        },
+                        child: AnimatedCrossFade(
+                          firstChild: Expanded(
+                              child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                'Long Lines',
+                                style: TextStyle(
+                                    fontSize: 18, color: AppTheme.primary),
+                              ),
+                              RoundIconButton(
+                                icon: Icons.search,
+                                onTap: () {
+                                  setState(() {
+                                    _showSearch = true;
+                                  });
+                                },
+                              ),
+                            ],
+                          )),
+                          secondChild: Expanded(
+                              child: Container(
+                            height: 45,
+                            child: TextField(
+                              autofocus: true,
+                              decoration: InputDecoration(
+                                  filled: true,
+                                  fillColor: Colors.white,
+                                  prefixIcon: RoundIconButton(
+                                    icon: Icons.search,
+                                    onTap: () {
+                                      setState(() {
+                                        _showSearch = false;
+                                        FocusScope.of(context)
+                                            .requestFocus(FocusNode());
+                                      });
+                                    },
+                                  ),
+                                  focusedBorder: OutlineInputBorder(
+                                      borderSide:
+                                          BorderSide(color: Color(0xFFB6B6B6)),
+                                      borderRadius: BorderRadius.circular(100)),
+                                  border: OutlineInputBorder(
+                                      borderSide:
+                                          BorderSide(color: Color(0xFFB6B6B6)),
+                                      borderRadius:
+                                          BorderRadius.circular(100))),
+                            ),
+                          )),
+                          crossFadeState: !_showSearch
+                              ? CrossFadeState.showFirst
+                              : CrossFadeState.showSecond,
+                          duration: const Duration(seconds: 1),
+                          sizeCurve: Curves.easeInOutExpo,
+                        ),
                       ),
 
+                      /// search
                       InkWell(
                         onTap: () {},
                         child: Container(
-                          padding: EdgeInsets.all(6),
+                          padding: EdgeInsets.all(10),
                           margin: EdgeInsets.symmetric(horizontal: 2),
                           decoration: BoxDecoration(
                             color: Colors.grey,
@@ -123,7 +168,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           child: Center(
                             child: ImageIcon(
                               AssetImage('images/menu.png'),
-                              size: 26,
+                              size: 18,
                               color: Colors.white,
                             ),
                           ),

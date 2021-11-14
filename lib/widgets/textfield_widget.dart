@@ -13,12 +13,10 @@ class TextFieldWidget extends StatelessWidget {
     required this.initialValue,
     required this.onChanged,
     required this.validator,
-
-
     required this.labelText,
     required this.obscureText,
     required this.textCapitalization,
-    this.autofocus=false,
+    this.autofocus = false,
   });
 
   @override
@@ -44,17 +42,36 @@ class TextFieldWidget extends StatelessWidget {
           ),
         ),
         errorBorder: OutlineInputBorder(
-          borderSide: BorderSide(
-            color: Colors.red,
-            width: 2.0,
-          )
-        ),
+            borderSide: BorderSide(
+          color: Colors.red,
+          width: 2.0,
+        )),
         fillColor: Colors.white,
         filled: true,
       ),
       textCapitalization: textCapitalization,
       onChanged: onChanged,
       validator: validator,
+    );
+  }
+}
+
+class ReorderableTextFieldWidget extends StatelessWidget {
+  final TextFieldWidget child;
+
+  ReorderableTextFieldWidget({required this.child});
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Icon(
+          Icons.drag_indicator,
+          size: 27,
+          color: Colors.grey,
+        ),
+        Expanded(child: child)
+      ],
     );
   }
 }

@@ -2,7 +2,9 @@ import 'dart:developer';
 import 'dart:io';
 
 import 'package:aerotec_flutter_app/constants/constants.dart';
+import 'package:aerotec_flutter_app/models/longlines/category_model.dart';
 import 'package:aerotec_flutter_app/models/longlines/longlines_model.dart';
+import 'package:aerotec_flutter_app/providers/categories_provider.dart';
 import 'package:aerotec_flutter_app/providers/longlines_provider.dart';
 import 'package:aerotec_flutter_app/widgets/widgets.dart';
 import 'package:camera_camera/camera_camera.dart';
@@ -29,32 +31,44 @@ class _LongLinesFormState extends State<LongLinesForm> {
   /***Form Properties */
   String id = '';
   String name = '';
-  String length = longLineLengths[0];
+  String? length;
   String? category;
-  String lgsize = longLineSize[0];
+  String? lgsize;
   String partNumber = '';
-  String safeWorkingLoad = safeWorkingLoadItems[0];
+  String? safeWorkingLoad;
   String serialNumber = '';
-  String timeBetweenOverhauls = timeBetweenOverhaulsItems[0];
-  String type = longLineTypes[0];
+  String? timeBetweenOverhauls;
+  String? type;
   String imagePath = '';
-  List<Widget> reorderableItems = [];
+  ValueNotifier<List<Widget>> reorderableDetailsItems = ValueNotifier([]);
+  ValueNotifier<List<Widget>> reorderableMaintenanceItems = ValueNotifier([]);
   final otherDataVisible = ValueNotifier<bool>(false);
   Timestamp inspectionDate = Timestamp.fromDate(new DateTime.now());
   Timestamp nextInspectionDate = Timestamp.fromDate(new DateTime.now());
   Timestamp datePurchased = Timestamp.fromDate(new DateTime.now());
   Timestamp datePutIntoService = Timestamp.fromDate(new DateTime.now());
+  List<String> longLineTypes = [];
+  List<String> longLineCategory = [];
+  List<String> longLineSize = [];
+  List<String> longLineLengths = [];
+  List<String> safeWorkingLoadItems = [];
+  List<String> timeBetweenOverhaulsItems = [];
+  List<CategoryModel> categoryModels = [];
+  final ValueNotifier<CategoryModel?> currentCategory = ValueNotifier(null);
 
   /***Form Properties */
   File? _image;
   bool photoUploaded = false;
   final ImagePicker _picker = ImagePicker();
   late LongLinesProvider longLinesProvider;
+  late CategoriesProvider categoriesProvider;
   late String imageUrl;
 
   void initState() {
     super.initState();
     longLinesProvider = Provider.of<LongLinesProvider>(context, listen: false);
+    categoriesProvider =
+        Provider.of<CategoriesProvider>(context, listen: false);
     formType = widget.formType;
     if (formType == 'edit') populateForm();
     addReorderableItems();
@@ -108,14 +122,56 @@ class _LongLinesFormState extends State<LongLinesForm> {
   }
 
   submitForm() {
-    var sizeIndex = reorderableItems.indexOf(reorderableItems
-        .firstWhere((element) => element.key == ValueKey('size')));
-    var lengthIndex = reorderableItems.indexOf(reorderableItems
-        .firstWhere((element) => element.key == ValueKey('length')));
-    var typeIndex = reorderableItems.indexOf(reorderableItems
-        .firstWhere((element) => element.key == ValueKey('type')));
-    var swlIndex = reorderableItems.indexOf(reorderableItems
+    var sizeIndex = reorderableDetailsItems.value.indexOf(
+        reorderableDetailsItems.value
+            .firstWhere((element) => element.key == ValueKey('size')));
+    sizeIndex.toString().logString('size');
+
+    var lengthIndex = reorderableDetailsItems.value.indexOf(
+        reorderableDetailsItems.value
+            .firstWhere((element) => element.key == ValueKey('length')));
+    lengthIndex.toString().logString('length');
+
+    var typeIndex = reorderableDetailsItems.value.indexOf(
+        reorderableDetailsItems.value
+            .firstWhere((element) => element.key == ValueKey('type')));
+    typeIndex.toString().logString('type');
+
+    var swlIndex = reorderableDetailsItems.value.indexOf(reorderableDetailsItems
+        .value
         .firstWhere((element) => element.key == ValueKey('swl')));
+    swlIndex.toString().logString('swl');
+
+    var slNoIndex = reorderableDetailsItems.value.indexOf(
+        reorderableDetailsItems.value
+            .firstWhere((element) => element.key == ValueKey('slNo')));
+    slNoIndex.toString().logString('serial no.');
+
+    var nameIndex = reorderableDetailsItems.value.indexOf(
+        reorderableDetailsItems.value
+            .firstWhere((element) => element.key == ValueKey('name')));
+    nameIndex.toString().logString('name');
+
+    var partNoIndex = reorderableDetailsItems.value.indexOf(
+        reorderableDetailsItems.value
+            .firstWhere((element) => element.key == ValueKey('partNo')));
+    partNoIndex.toString().logString('part no.');
+
+    var datePutIntoServiceIndex = reorderableMaintenanceItems.value.indexOf(
+        reorderableMaintenanceItems.value.firstWhere(
+            (element) => element.key == ValueKey('datePutIntoService')));
+    datePutIntoServiceIndex.toString().logString('date put into service');
+
+    var datePurchasedIndex = reorderableMaintenanceItems.value.indexOf(
+        reorderableMaintenanceItems.value
+            .firstWhere((element) => element.key == ValueKey('datePurchased')));
+    datePurchasedIndex.toString().logString('date purchased');
+
+    var tboIndex = reorderableMaintenanceItems.value.indexOf(
+        reorderableMaintenanceItems.value
+            .firstWhere((element) => element.key == ValueKey('tbo')));
+    tboIndex.toString().logString('tbo');
+
     final longLine = {
       'name': category,
       'fields': [
@@ -123,61 +179,61 @@ class _LongLinesFormState extends State<LongLinesForm> {
           'name': 'Name',
           'type': 'text',
           'options': name,
-          'position': 1,
+          'position': nameIndex + 1,
         },
         {
           'name': 'Serial Number',
           'type': 'text',
           'options': serialNumber,
-          'position': 2,
-        },
-        {
-          'name': 'Date Put Into Service',
-          'type': 'date',
-          'options': datePutIntoService,
-          'position': 8,
-        },
-        {
-          'name': 'Date Purchased',
-          'type': 'date',
-          'options': datePurchased,
-          'position': 9,
-        },
-        {
-          'name': 'Part Number',
-          'type': 'text',
-          'options': partNumber,
-          'position': 7,
+          'position': slNoIndex + 1,
         },
         {
           'name': 'Size',
           'type': 'dropdown',
-          'options': longLineSize.sublist(1),
-          'position': sizeIndex + 3,
+          'options': longLineSize,
+          'position': sizeIndex + 1,
         },
         {
           'name': 'Safe Working Load',
           'type': 'dropdown',
-          'options': safeWorkingLoadItems.sublist(1),
-          'position': swlIndex + 3,
+          'options': safeWorkingLoadItems,
+          'position': swlIndex + 1,
         },
         {
           'name': 'Time Between Overhauls',
           'type': 'dropdown',
           'options': timeBetweenOverhaulsItems,
-          'position': 10,
+          'position': tboIndex + 8,
         },
         {
           'name': 'Type',
           'type': 'dropdown',
-          'options': longLineTypes.sublist(1),
-          'position': typeIndex + 3,
+          'options': longLineTypes,
+          'position': typeIndex + 1,
         },
         {
           'name': 'Length',
           'type': 'dropdown',
-          'options': longLineLengths.sublist(1),
-          'position': lengthIndex + 3,
+          'options': longLineLengths,
+          'position': lengthIndex + 1,
+        },
+        {
+          'name': 'Part Number',
+          'type': 'text',
+          'options': partNumber,
+          'position': partNoIndex + 1,
+        },
+        {
+          'name': 'Date Put Into Service',
+          'type': 'date',
+          'options': datePutIntoService,
+          'position': datePutIntoServiceIndex + 8,
+        },
+        {
+          'name': 'Date Purchased',
+          'type': 'date',
+          'options': datePurchased,
+          'position': datePurchasedIndex + 8,
         },
         // {
         //   'name': 'Inspection Date',
@@ -205,7 +261,7 @@ class _LongLinesFormState extends State<LongLinesForm> {
 
     try {
       FirebaseFirestore.instance
-          .collection('Categories')
+          .collection('categories')
           .add(longLine)
           .then((_) {
         Navigator.of(context).pop();
@@ -234,23 +290,82 @@ class _LongLinesFormState extends State<LongLinesForm> {
     // Navigator.pop(context);
   }
 
-  addReorderableItems() {
-    reorderableItems = [
+  addReorderableItems([CategoryModel? categoryModel]) {
+    Field? nameField;
+    Field? slNoField;
+    Field? sizeField;
+    Field? swlField;
+    Field? tboField;
+    Field? typeField;
+    Field? lengthField;
+    Field? partNoField;
+    Field? dpisField;
+    Field? dpField;
+    if (categoryModel != null) {
+      nameField =
+          categoryModel.fields.firstWhere((element) => element.name == 'Name');
+      slNoField = categoryModel.fields
+          .firstWhere((element) => element.name == 'Serial Number');
+      sizeField =
+          categoryModel.fields.firstWhere((element) => element.name == 'Size');
+      swlField = categoryModel.fields
+          .firstWhere((element) => element.name == 'Safe Working Load');
+      tboField = categoryModel.fields
+          .firstWhere((element) => element.name == 'Time Between Overhauls');
+      typeField =
+          categoryModel.fields.firstWhere((element) => element.name == 'Type');
+      lengthField = categoryModel.fields
+          .firstWhere((element) => element.name == 'Length');
+      partNoField = categoryModel.fields
+          .firstWhere((element) => element.name == 'Part Number');
+      dpisField = categoryModel.fields
+          .firstWhere((element) => element.name == 'Date Put Into Service');
+      dpField = categoryModel.fields
+          .firstWhere((element) => element.name == 'Date Purchased');
+    }
+    reorderableDetailsItems.value = [
+      Padding(
+        padding: const EdgeInsets.symmetric(vertical: 8.0),
+        key: ValueKey('name'),
+        child: ReorderableTextFieldWidget(
+          child: TextFieldWidget(
+            textCapitalization: TextCapitalization.sentences,
+            obscureText: false,
+            initialValue: nameField == null ? name : nameField.options,
+            onChanged: (val) => setState(() => name = val),
+            validator: (val) => val.isEmpty ? 'Enter a name' : null,
+            labelText: 'Name *',
+          ),
+        ),
+      ),
+      Padding(
+        padding: const EdgeInsets.symmetric(vertical: 8.0),
+        key: ValueKey('slNo'),
+        child: ReorderableTextFieldWidget(
+          child: TextFieldWidget(
+            textCapitalization: TextCapitalization.sentences,
+            obscureText: false,
+            initialValue: slNoField == null ? serialNumber : slNoField.options,
+            labelText: 'Serial Number *',
+            onChanged: (val) => setState(() => serialNumber = val),
+            validator: (val) => val.isEmpty ? 'Add a serial number' : null,
+          ),
+        ),
+      ),
       Padding(
         key: ValueKey('size'),
         padding: const EdgeInsets.symmetric(vertical: 8.0),
-        child: CustomDropDownFormWidget(
+        child: ReorderableDropDownWidget(
             key: ValueKey('size'),
             removeButton: true,
             isDraggable: true,
             labelText: 'Size *',
-            items: longLineSize,
-            value: lgsize,
-            validator: (val) => val == '- select -' ? 'Add a Size' : null,
+            items: [],
+            validator: (val) => lgsize == null ? 'Add a Size' : null,
             onChanged: (val) {
               setState(() {
-                longLineSize.add(val);
                 lgsize = val;
+                longLineSize.add(val);
               });
               FocusScope.of(context).requestFocus(FocusNode());
             }),
@@ -258,18 +373,17 @@ class _LongLinesFormState extends State<LongLinesForm> {
       Padding(
         key: ValueKey('length'),
         padding: const EdgeInsets.symmetric(vertical: 8.0),
-        child: CustomDropDownFormWidget(
+        child: ReorderableDropDownWidget(
             key: ValueKey('length'),
             removeButton: true,
             isDraggable: true,
             labelText: 'Length *',
-            items: longLineLengths,
-            value: length,
-            validator: (val) => val == '- select -' ? 'Add a length' : null,
+            items: [],
+            validator: (val) => length == null ? 'Add a length' : null,
             onChanged: (val) {
               setState(() {
-                longLineLengths.add(val);
                 length = val;
+                longLineLengths.add(val);
               });
               FocusScope.of(context).requestFocus(FocusNode());
             }),
@@ -277,18 +391,17 @@ class _LongLinesFormState extends State<LongLinesForm> {
       Padding(
         key: ValueKey('type'),
         padding: const EdgeInsets.symmetric(vertical: 8.0),
-        child: CustomDropDownFormWidget(
+        child: ReorderableDropDownWidget(
           key: ValueKey('type'),
           removeButton: true,
           isDraggable: true,
           labelText: 'Type *',
-          items: longLineTypes,
-          value: type,
-          validator: (val) => val == '- select -' ? 'Add a type' : null,
+          items: [],
+          validator: (val) => type == null ? 'Add/Select Type' : null,
           onChanged: (val) {
             setState(() {
-              longLineTypes.add(val);
               type = val;
+              longLineTypes.add(val);
             });
             FocusScope.of(context).requestFocus(FocusNode());
           },
@@ -297,23 +410,90 @@ class _LongLinesFormState extends State<LongLinesForm> {
       Padding(
         padding: const EdgeInsets.symmetric(vertical: 8.0),
         key: ValueKey('swl'),
-        child: CustomDropDownFormWidget(
+        child: ReorderableDropDownWidget(
           key: ValueKey('swl'),
           isDraggable: true,
           labelText: 'Safe Working Load *',
-          items: safeWorkingLoadItems,
-          value: safeWorkingLoad,
+          items: [],
+          removeButton: true,
           validator: (val) =>
-              val == '- select -' ? 'Add a safe working load' : null,
+              safeWorkingLoad == null ? 'Add a safe working load' : null,
           onChanged: (val) {
             setState(() {
-              safeWorkingLoadItems.add(val);
               safeWorkingLoad = val;
+              safeWorkingLoadItems.add(val);
             });
             FocusScope.of(context).requestFocus(FocusNode());
           },
         ),
       ),
+      Padding(
+        padding: const EdgeInsets.symmetric(vertical: 8.0),
+        key: ValueKey('partNo'),
+        child: ReorderableTextFieldWidget(
+          child: TextFieldWidget(
+            textCapitalization: TextCapitalization.sentences,
+            obscureText: false,
+            initialValue: partNumber,
+            labelText: 'Part Number *',
+            onChanged: (val) => setState(() => partNumber = val),
+            validator: (val) => val.isEmpty ? 'Add a part number' : null,
+          ),
+        ),
+      ),
+    ];
+    reorderableMaintenanceItems.value = [
+      Padding(
+        key: ValueKey('datePutIntoService'),
+        padding: const EdgeInsets.symmetric(vertical: 8.0),
+        child: ReorderableDateTimePickerWidget(
+          child: DateTimePickerWidget(
+              format: DateFormat('MM-dd-yyyy'),
+              labelText: 'Date Put Into Service *',
+              onChanged: (value) => setState(
+                  () => datePutIntoService = Timestamp.fromDate(value)),
+              validator: (val) => val == null ? 'Enter a date' : null,
+              initialValue: formType == 'edit'
+                  ? DateTime.fromMillisecondsSinceEpoch(
+                      datePutIntoService.seconds * 1000)
+                  : null),
+        ),
+      ),
+      Padding(
+        key: ValueKey('datePurchased'),
+        padding: const EdgeInsets.symmetric(vertical: 8.0),
+        child: ReorderableDateTimePickerWidget(
+          child: DateTimePickerWidget(
+              format: DateFormat('MM-dd-yyyy'),
+              labelText: 'Date Purchased *',
+              onChanged: (value) =>
+                  setState(() => datePurchased = Timestamp.fromDate(value)),
+              validator: (val) => val == null ? 'Enter a date' : null,
+              initialValue: formType == 'edit'
+                  ? DateTime.fromMillisecondsSinceEpoch(
+                      datePurchased.seconds * 1000)
+                  : null),
+        ),
+      ),
+      Padding(
+        key: ValueKey('tbo'),
+        padding: const EdgeInsets.symmetric(vertical: 8.0),
+        child: ReorderableDropDownWidget(
+          key: ValueKey('tbo'),
+          isDraggable: true,
+          labelText: 'Time Between Overhauls *',
+          items: [],
+          validator: (val) =>
+              timeBetweenOverhauls == null ? 'Add a time' : null,
+          onChanged: (val) {
+            setState(() {
+              timeBetweenOverhaulsItems.add(val);
+              timeBetweenOverhauls = val;
+            });
+            FocusScope.of(context).requestFocus(FocusNode());
+          },
+        ),
+      )
     ];
   }
 
@@ -352,225 +532,255 @@ class _LongLinesFormState extends State<LongLinesForm> {
                   ValueListenableBuilder<bool>(
                     valueListenable: otherDataVisible,
                     builder: (_, otherDataVisibleValue, child) {
+                      log('value changed');
                       return Visibility(
                         visible: otherDataVisibleValue,
-                        child: Container(
-                          width: double.infinity,
-                          height: size.height * .3,
-                          child: Stack(
-                            alignment: Alignment.bottomRight,
-                            children: [
-                              Center(
-                                child: _image == null
-                                    ? imagePath == ''
-                                        ? Icon(
-                                            Icons.add_a_photo,
-                                            size: 100,
-                                          )
-                                        : Container(
-                                            decoration: BoxDecoration(
-                                              image: DecorationImage(
-                                                  image: NetworkImage(
-                                                      'https://firebasestorage.googleapis.com/v0/b/aerotec-app.appspot.com/o/longlines%2F${imageUrl.toString()}_800x800.jpeg?alt=media'),
-                                                  fit: BoxFit.cover),
-                                            ),
-                                          )
-                                    : Container(
-                                        decoration: BoxDecoration(
-                                          image: DecorationImage(
-                                              image: FileImage(_image!),
-                                              fit: BoxFit.cover),
-                                        ),
-                                      ),
-                              ),
-                              Positioned(
-                                bottom: 10,
-                                right: 10,
-                                child: PopupMenuButton(
-                                  offset: Offset(-15, 50),
-                                  child: Container(
-                                      width: 60,
-                                      height: 60,
-                                      decoration: BoxDecoration(
-                                        color: Colors.white,
-                                        shape: BoxShape.circle,
-                                      ),
-                                      child: Center(
-                                          child: Icon(Icons.photo_camera))),
-                                  onSelected: (val) {
-                                    if (val == 0) {
-                                      openCamera();
-                                    } else {
-                                      getImage();
-                                    }
-                                  },
-                                  itemBuilder: (_) => [
-                                    PopupMenuItem(
-                                        value: 0, child: Text('Take Photo')),
-                                    PopupMenuItem(
-                                        value: 1, child: Text('Choose Image')),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
-                          decoration: BoxDecoration(
-                              border: Border.all(
-                            width: 1,
-                            color: Colors.grey,
-                          )),
-                        ),
-                      );
-                    },
-                  ),
-                  SizedBox(height: size.height * .03),
-                  Text(
-                    'Category',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black,
-                    ),
-                  ),
-                  SizedBox(height: size.height * .02),
-                  CustomDropDownCatFormWidget(
-                      key: ValueKey('cat'),
-                      labelText: 'Category *',
-                      items: longLineCategory,
-                      validator: (val) =>
-                          val == '- select -' ? 'Add a Category' : null,
-                      onChanged: (val) {
-                        setState(() {
-                          category = val;
-                          log(val.toString());
-                        });
-
-                        otherDataVisible.value = true;
-                        FocusScope.of(context).requestFocus(FocusNode());
-                      }),
-                  SizedBox(height: size.height * .04),
-                  ValueListenableBuilder<bool>(
-                    valueListenable: otherDataVisible,
-                    builder: (_, value, child) {
-                      return Visibility(
-                        visible: value,
                         child: Column(
                           mainAxisSize: MainAxisSize.min,
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(
-                              'Details',
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.black,
+                            Container(
+                              width: double.infinity,
+                              height: size.height * .3,
+                              child: Stack(
+                                alignment: Alignment.bottomRight,
+                                children: [
+                                  Center(
+                                    child: _image == null
+                                        ? imagePath == ''
+                                            ? Icon(
+                                                Icons.add_a_photo,
+                                                size: 100,
+                                              )
+                                            : Container(
+                                                decoration: BoxDecoration(
+                                                  image: DecorationImage(
+                                                      image: NetworkImage(
+                                                          'https://firebasestorage.googleapis.com/v0/b/aerotec-app.appspot.com/o/longlines%2F${imageUrl.toString()}_800x800.jpeg?alt=media'),
+                                                      fit: BoxFit.cover),
+                                                ),
+                                              )
+                                        : Container(
+                                            decoration: BoxDecoration(
+                                              shape: BoxShape.circle,
+                                              image: DecorationImage(
+                                                  image: FileImage(_image!),
+                                                  fit: BoxFit.cover),
+                                            ),
+                                          ),
+                                  ),
+                                  Positioned(
+                                    bottom: 10,
+                                    right: 50,
+                                    child: PopupMenuButton(
+                                      offset: Offset(-15, 50),
+                                      child: Container(
+                                          width: 60,
+                                          height: 60,
+                                          decoration: BoxDecoration(
+                                              color: Colors.white,
+                                              shape: BoxShape.circle,
+                                              border: Border.all(
+                                                width: 1,
+                                                color: Colors.grey,
+                                              )),
+                                          child: Center(
+                                              child: Icon(Icons.photo_camera))),
+                                      onSelected: (val) {
+                                        if (val == 0) {
+                                          openCamera();
+                                        } else {
+                                          getImage();
+                                        }
+                                      },
+                                      itemBuilder: (_) => [
+                                        PopupMenuItem(
+                                            value: 0,
+                                            child: Text('Take Photo')),
+                                        PopupMenuItem(
+                                            value: 1,
+                                            child: Text('Choose Image')),
+                                      ],
+                                    ),
+                                  ),
+                                  Positioned(
+                                    top: 30,
+                                    right: 10,
+                                    child: Center(
+                                        child: Icon(
+                                      Icons.more_vert,
+                                      color: Colors.grey,
+                                      size: 35,
+                                    )),
+                                  ),
+                                ],
+                              ),
+                              decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  border: Border.all(
+                                    width: 1,
+                                    color: Colors.grey,
+                                  )),
+                            ),
+                            SizedBox(height: size.height * .03),
+                            Align(
+                              alignment: Alignment.topRight,
+                              child: Container(
+                                child: ElevatedButton(
+                                  onPressed: () {
+                                    setState(() {
+                                      // hideOptions = true;
+                                    });
+                                  },
+                                  child: Text('Finalize Form'),
+                                  style: ElevatedButton.styleFrom(
+                                      primary: Colors.grey,
+                                      textStyle:
+                                          TextStyle(color: Colors.white)),
+                                ),
                               ),
                             ),
-                            SizedBox(height: size.height * .03),
-                            TextFieldWidget(
-                              textCapitalization: TextCapitalization.sentences,
-                              obscureText: false,
-                              initialValue: name,
-                              onChanged: (val) => setState(() => name = val),
-                              validator: (val) =>
-                                  val.isEmpty ? 'Enter a name' : null,
-                              labelText: 'Name *',
-                            ),
-                            SizedBox(height: screenHeight * .02),
-                            TextFieldWidget(
-                              textCapitalization: TextCapitalization.sentences,
-                              obscureText: false,
-                              initialValue: serialNumber,
-                              labelText: 'Serial Number *',
-                              onChanged: (val) =>
-                                  setState(() => serialNumber = val),
-                              validator: (val) =>
-                                  val.isEmpty ? 'Add a serial number' : null,
-                            ),
-                            SizedBox(height: size.height * .02),
-                            ReorderableListView.builder(
-                              itemBuilder: (context, index) {
-                                return reorderableItems[index];
-                              },
-                              shrinkWrap: true,
-                              physics: NeverScrollableScrollPhysics(),
-                              itemCount: reorderableItems.length,
-                              onReorder: (oldIndex, newIndex) {
-                                final newUpdatedIndex = newIndex > oldIndex
-                                    ? newIndex - 1
-                                    : newIndex;
-                                log('oldindex:  and newIndex: ', name: 'index');
-                                final currentItem = reorderableItems[oldIndex];
-                                reorderableItems.removeAt(oldIndex);
-                                reorderableItems.insert(
-                                    newUpdatedIndex, currentItem);
-                              },
-                            ),
-                            SizedBox(height: size.height * .02),
-                            TextFieldWidget(
-                              textCapitalization: TextCapitalization.sentences,
-                              obscureText: false,
-                              initialValue: partNumber,
-                              labelText: 'Part Number *',
-                              onChanged: (val) =>
-                                  setState(() => partNumber = val),
-                              validator: (val) =>
-                                  val.isEmpty ? 'Add a part number' : null,
-                            ),
-                            SizedBox(height: size.height * .04),
-                            Text(
-                              'Maintenance',
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.black,
-                              ),
-                            ),
-                            SizedBox(height: size.height * .03),
-                            DateTimePickerWidget(
-                                format: DateFormat('MM-dd-yyyy'),
-                                labelText: 'Date Put Into Service *',
-                                onChanged: (value) => setState(() =>
-                                    datePutIntoService =
-                                        Timestamp.fromDate(value)),
-                                validator: (val) =>
-                                    val == null ? 'Enter a date' : null,
-                                initialValue: formType == 'edit'
-                                    ? DateTime.fromMillisecondsSinceEpoch(
-                                        datePutIntoService.seconds * 1000)
-                                    : null),
-                            SizedBox(height: size.height * .03),
-                            DateTimePickerWidget(
-                                format: DateFormat('MM-dd-yyyy'),
-                                labelText: 'Date Purchased *',
-                                onChanged: (value) => setState(() =>
-                                    datePurchased = Timestamp.fromDate(value)),
-                                validator: (val) =>
-                                    val == null ? 'Enter a date' : null,
-                                initialValue: formType == 'edit'
-                                    ? DateTime.fromMillisecondsSinceEpoch(
-                                        datePurchased.seconds * 1000)
-                                    : null),
-                            SizedBox(height: size.height * .03),
-                            CustomDropDownFormWidget(
-                              key: ValueKey('tbo'),
-                              labelText: 'Time Between Overhauls *',
-                              items: timeBetweenOverhaulsItems,
-                              value: timeBetweenOverhauls,
-                              validator: (val) =>
-                                  val == '- select -' ? 'Add a time' : null,
-                              onChanged: (val) {
-                                setState(() {
-                                  timeBetweenOverhaulsItems.add(val);
-                                  timeBetweenOverhauls = val;
-                                });
-                                FocusScope.of(context)
-                                    .requestFocus(FocusNode());
-                              },
+                            Row(
+                              children: [
+                                Text(
+                                  'Category',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.black,
+                                  ),
+                                ),
+                              ],
                             ),
                             SizedBox(height: size.height * .02),
                           ],
                         ),
+                      );
+                    },
+                  ),
+                  Consumer<CategoriesProvider>(
+                    builder: (context, provider, child) {
+                      final categories = provider.categoriesProvider;
+                      categories.forEach((element) {
+                        log(element.toJson().toString());
+                      });
+                      return ReorderableCatDropDownWidget(
+                          key: ValueKey('cat'),
+                          labelText: 'Category *',
+                          items: categories != null && categories.isNotEmpty
+                              ? categories
+                              : [],
+                          validator: (val) =>
+                              category == null ? 'Add a Category' : null,
+                          onChanged: (val) {
+                            setState(() {
+                              category = val;
+                              final List<CategoryModel> filteredCats =
+                                  categories
+                                      .where((element) => element.name == val)
+                                      .toList();
+                              if (filteredCats != null &&
+                                  filteredCats.isNotEmpty) {
+                                currentCategory.value = filteredCats.first;
+                              }
+                              ;
+                            });
+                            otherDataVisible.value = true;
+                            FocusScope.of(context).requestFocus(FocusNode());
+                          });
+                    },
+                  ),
+                  SizedBox(height: size.height * .03),
+                  ValueListenableBuilder<CategoryModel?>(
+                    valueListenable: currentCategory,
+                    builder: (_, currentCategoryValue, child) {
+                      reorderableDetailsItems.value = [];
+                      addReorderableItems(currentCategoryValue);
+                      return ValueListenableBuilder<bool>(
+                        valueListenable: otherDataVisible,
+                        builder: (_, value, child) {
+                          return Visibility(
+                            visible: value,
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Details',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.black,
+                                  ),
+                                ),
+                                SizedBox(height: size.height * .02),
+                                ValueListenableBuilder<List<Widget>>(
+                                  valueListenable: reorderableDetailsItems,
+                                  builder:
+                                      (_, reorderableDetailsItemsValue, child) {
+                                    return ReorderableListView.builder(
+                                      itemBuilder: (context, index) {
+                                        return reorderableDetailsItemsValue[
+                                            index];
+                                      },
+                                      shrinkWrap: true,
+                                      physics: NeverScrollableScrollPhysics(),
+                                      itemCount:
+                                          reorderableDetailsItemsValue.length,
+                                      onReorder: (oldIndex, newIndex) {
+                                        final newUpdatedIndex =
+                                            newIndex > oldIndex
+                                                ? newIndex - 1
+                                                : newIndex;
+                                        final currentItem =
+                                            reorderableDetailsItems
+                                                .value[oldIndex];
+                                        reorderableDetailsItems.value
+                                            .removeAt(oldIndex);
+                                        reorderableDetailsItems.value.insert(
+                                            newUpdatedIndex, currentItem);
+                                      },
+                                    );
+                                  },
+                                ),
+                                SizedBox(height: size.height * .04),
+                                Text(
+                                  'Maintenance',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.black,
+                                  ),
+                                ),
+                                SizedBox(height: size.height * .03),
+                                ReorderableListView.builder(
+                                  itemCount:
+                                      reorderableMaintenanceItems.value.length,
+                                  shrinkWrap: true,
+                                  physics: NeverScrollableScrollPhysics(),
+                                  onReorder: (oldIndex, newIndex) {
+                                    final newUpdatedIndex = newIndex > oldIndex
+                                        ? newIndex - 1
+                                        : newIndex;
+                                    log('oldindex:  and newIndex: ',
+                                        name: 'index');
+                                    final currentItem =
+                                        reorderableMaintenanceItems
+                                            .value[oldIndex];
+                                    reorderableMaintenanceItems.value
+                                        .removeAt(oldIndex);
+                                    reorderableMaintenanceItems.value
+                                        .insert(newUpdatedIndex, currentItem);
+                                  },
+                                  itemBuilder: (context, index) {
+                                    return reorderableMaintenanceItems
+                                        .value[index];
+                                  },
+                                ),
+                              ],
+                            ),
+                          );
+                        },
                       );
                     },
                   ),
@@ -587,10 +797,11 @@ class _LongLinesFormState extends State<LongLinesForm> {
                           return ElevatedButton(
                               child: Text('Submit'),
                               onPressed: () {
-                                var check = reorderableItems.firstWhere(
-                                    (element) =>
+                                var check = reorderableDetailsItems.value
+                                    .firstWhere((element) =>
                                         element.key == ValueKey('size'));
-                                var index = reorderableItems.indexOf(check);
+                                var index = reorderableDetailsItems.value
+                                    .indexOf(check);
                                 log(index.toString());
                                 if (_formKey.currentState!.validate()) {
                                   submitForm();
