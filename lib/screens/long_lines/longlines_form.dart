@@ -360,7 +360,7 @@ class _LongLinesFormState extends State<LongLinesForm> {
             removeButton: true,
             isDraggable: true,
             labelText: 'Size *',
-            items: [],
+            items: sizeField == null ? [] : sizeField.options,
             validator: (val) => lgsize == null ? 'Add a Size' : null,
             onChanged: (val) {
               setState(() {
@@ -378,7 +378,7 @@ class _LongLinesFormState extends State<LongLinesForm> {
             removeButton: true,
             isDraggable: true,
             labelText: 'Length *',
-            items: [],
+            items: lengthField == null ? [] : lengthField.options,
             validator: (val) => length == null ? 'Add a length' : null,
             onChanged: (val) {
               setState(() {
@@ -396,7 +396,7 @@ class _LongLinesFormState extends State<LongLinesForm> {
           removeButton: true,
           isDraggable: true,
           labelText: 'Type *',
-          items: [],
+          items: typeField == null ? [] : typeField.options,
           validator: (val) => type == null ? 'Add/Select Type' : null,
           onChanged: (val) {
             setState(() {
@@ -414,7 +414,7 @@ class _LongLinesFormState extends State<LongLinesForm> {
           key: ValueKey('swl'),
           isDraggable: true,
           labelText: 'Safe Working Load *',
-          items: [],
+          items: swlField == null ? [] : swlField.options,
           removeButton: true,
           validator: (val) =>
               safeWorkingLoad == null ? 'Add a safe working load' : null,
@@ -434,7 +434,8 @@ class _LongLinesFormState extends State<LongLinesForm> {
           child: TextFieldWidget(
             textCapitalization: TextCapitalization.sentences,
             obscureText: false,
-            initialValue: partNumber,
+            initialValue:
+                partNoField == null ? partNumber : partNoField.options,
             labelText: 'Part Number *',
             onChanged: (val) => setState(() => partNumber = val),
             validator: (val) => val.isEmpty ? 'Add a part number' : null,
@@ -456,7 +457,9 @@ class _LongLinesFormState extends State<LongLinesForm> {
               initialValue: formType == 'edit'
                   ? DateTime.fromMillisecondsSinceEpoch(
                       datePutIntoService.seconds * 1000)
-                  : null),
+                  : dpisField != null
+                      ? (dpisField.options as Timestamp).toDate()
+                      : null),
         ),
       ),
       Padding(
@@ -472,7 +475,9 @@ class _LongLinesFormState extends State<LongLinesForm> {
               initialValue: formType == 'edit'
                   ? DateTime.fromMillisecondsSinceEpoch(
                       datePurchased.seconds * 1000)
-                  : null),
+                  : dpField != null
+                      ? (dpField.options as Timestamp).toDate()
+                      : null),
         ),
       ),
       Padding(
@@ -482,7 +487,7 @@ class _LongLinesFormState extends State<LongLinesForm> {
           key: ValueKey('tbo'),
           isDraggable: true,
           labelText: 'Time Between Overhauls *',
-          items: [],
+          items: tboField == null ? [] : tboField.options,
           validator: (val) =>
               timeBetweenOverhauls == null ? 'Add a time' : null,
           onChanged: (val) {

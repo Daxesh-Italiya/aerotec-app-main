@@ -244,7 +244,7 @@ class _RoundIconButton extends StatelessWidget {
 //For Category Specific
 
 class ReorderableDropDownWidget extends StatefulWidget {
-  final List<String> items;
+  final List<dynamic> items;
   final onChanged;
   final validator;
   final String labelText;
@@ -311,14 +311,14 @@ class _ReorderableDropDownWidgetState extends State<ReorderableDropDownWidget> {
                     ),
                     isExpanded: true,
                     selectedItemBuilder: (context) {
-                      return (widget.items + _items).map((String item) {
-                        return Text(item);
+                      return (widget.items + _items).map((dynamic item) {
+                        return Text(item.toString());
                       }).toList();
                     },
                     items: (widget.items + _items).map(
-                      (String item) {
+                      (dynamic item) {
                         return DropdownMenuItem(
-                          child: Text(item),
+                          child: Text(item.toString()),
                           value: item,
                         );
                       },
