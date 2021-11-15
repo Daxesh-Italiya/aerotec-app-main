@@ -22,35 +22,38 @@ class TextFieldWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 50,
+      //height: 50,
       child: TextFormField(
         obscureText: obscureText,
         initialValue: initialValue,
         autofocus: autofocus,
         decoration: InputDecoration(
-          floatingLabelBehavior: FloatingLabelBehavior.always,
-          labelText: labelText,
-          labelStyle: TextStyle(),
-          enabledBorder: OutlineInputBorder(
-            borderSide: BorderSide(
-              color: Colors.grey,
-              width: 1.0,
-            ),
-          ),
-          focusedBorder: OutlineInputBorder(
-            borderSide: BorderSide(
-              color: Colors.lightBlue,
-              width: 2.0,
-            ),
-          ),
-          errorBorder: OutlineInputBorder(
+            floatingLabelBehavior: FloatingLabelBehavior.always,
+            labelText: labelText,
+            //errorStyle: TextStyle(color: Colors.red, fontSize: 18),
+            labelStyle: TextStyle(),
+            enabledBorder: OutlineInputBorder(
               borderSide: BorderSide(
-            color: Colors.red,
-            width: 2.0,
-          )),
-          fillColor: Colors.white,
-          filled: true,
-        ),
+                color: Colors.grey,
+                width: 1.0,
+              ),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderSide: BorderSide(
+                color: Colors.lightBlue,
+                width: 2.0,
+              ),
+            ),
+            errorBorder: OutlineInputBorder(
+                borderSide: BorderSide(
+              color: Colors.red,
+              width: 2.0,
+            )),
+            fillColor: Colors.white,
+            filled: true,
+            isDense: true
+            //errorStyle: TextStyle(color: Colors.red)
+            ),
         textCapitalization: textCapitalization,
         onChanged: onChanged,
         validator: validator,
@@ -68,11 +71,11 @@ class ReorderableTextFieldWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        Icon(
-          Icons.drag_indicator,
-          size: 27,
-          color: Colors.grey,
-        ),
+        // Icon(
+        //   Icons.drag_indicator,
+        //   size: 27,
+        //   color: Colors.grey,
+        // ),
         Expanded(child: child)
       ],
     );

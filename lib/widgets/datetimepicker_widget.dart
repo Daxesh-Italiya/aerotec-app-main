@@ -21,7 +21,7 @@ class DateTimePickerWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 55,
+      //height: 55,
       child: DateTimeField(
         validator: validator,
         format: format,
@@ -64,11 +64,11 @@ class ReorderableDateTimePickerWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        Icon(
-          Icons.drag_indicator,
-          size: 27,
-          color: Colors.grey,
-        ),
+        // Icon(
+        //   Icons.drag_indicator,
+        //   size: 27,
+        //   color: Colors.grey,
+        // ),
         Expanded(
           child: child,
         )

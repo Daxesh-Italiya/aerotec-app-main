@@ -10,6 +10,7 @@ import 'package:aerotec_flutter_app/widgets/widgets.dart';
 import 'package:camera_camera/camera_camera.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
@@ -32,7 +33,8 @@ class _LongLinesFormState extends State<LongLinesForm> {
   String id = '';
   String name = '';
   String? length;
-  String? category;
+
+  // String? category;
   String? lgsize;
   String partNumber = '';
   String? safeWorkingLoad;
@@ -40,7 +42,9 @@ class _LongLinesFormState extends State<LongLinesForm> {
   String? timeBetweenOverhauls;
   String? type;
   String imagePath = '';
+
   ValueNotifier<List<Widget>> reorderableDetailsItems = ValueNotifier([]);
+
   ValueNotifier<List<Widget>> reorderableMaintenanceItems = ValueNotifier([]);
   final otherDataVisible = ValueNotifier<bool>(false);
   Timestamp inspectionDate = Timestamp.fromDate(new DateTime.now());
@@ -55,7 +59,7 @@ class _LongLinesFormState extends State<LongLinesForm> {
   List<String> timeBetweenOverhaulsItems = [];
   List<CategoryModel> categoryModels = [];
   final ValueNotifier<CategoryModel?> currentCategory = ValueNotifier(null);
-  final ValueNotifier<Map> formProperties = ValueNotifier({
+  final ValueNotifier<Map<String, bool>> formProperties = ValueNotifier({
     'isFormSubmitted': false,
     'isSizeVisible': true,
     'isLengthVisible': true,
@@ -135,10 +139,55 @@ class _LongLinesFormState extends State<LongLinesForm> {
             )));
   }
 
+  addNewCategory(String cat) async {
+    print("addNewCategory start ${cat}");
+
+    DocumentReference doc = await FirebaseFirestore.instance
+        .collection('categories')
+        .add({'name': cat, 'fields': []});
+
+    print("addNewCategory cat id ${doc.id}");
+
+    CategoryModel categoryModel =
+        CategoryModel(fields: [], name: cat, id: doc.id);
+
+    Fluttertoast.showToast(
+        msg: "New Category Added",
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.CENTER,
+        timeInSecForIosWeb: 1,
+        backgroundColor: Colors.black87,
+        textColor: Colors.white,
+        fontSize: 16.0);
+
+    currentCategory.value = categoryModel;
+    currentCategory.notifyListeners();
+
+    reorderableDetailsItems.value = [];
+    addReorderableItems(currentCategory.value);
+
+    setState(() {
+      categoryModels.add(categoryModel);
+      formProperties.value = {
+        'isFormSubmitted': true,
+        'isSizeVisible': formProperties.value['isSizeVisible']!,
+        'isLengthVisible': formProperties.value['isLengthVisible']!,
+        'isTypeVisible': formProperties.value['isTypeVisible']!,
+        'isSwlVisible': formProperties.value['isSwlVisible']!,
+        'isTboVisible': formProperties.value['isTboVisible']!
+      };
+
+      otherDataVisible.value = true;
+      FocusScope.of(context).requestFocus(FocusNode());
+      categoriesProvider.notifyListeners();
+    });
+  }
+
   submitForm() {
     var sizeIndex = reorderableDetailsItems.value.indexOf(
         reorderableDetailsItems.value
             .firstWhere((element) => element.key == ValueKey('size')));
+
     sizeIndex.toString().logString('size');
 
     var lengthIndex = reorderableDetailsItems.value.indexOf(
@@ -186,68 +235,74 @@ class _LongLinesFormState extends State<LongLinesForm> {
             .firstWhere((element) => element.key == ValueKey('tbo')));
     tboIndex.toString().logString('tbo');
 
+    int detailItemSize = reorderableDetailsItems.value.length;
+
     final longLine = {
-      'name': category,
+      'name': currentCategory.value!.name,
       'fields': [
         {
           'name': 'Name',
           'type': 'text',
           'options': name,
-          'position': nameIndex + 1,
+          'position': nameIndex == -1 ? nameIndex : nameIndex + 1,
         },
         {
           'name': 'Serial Number',
           'type': 'text',
           'options': serialNumber,
-          'position': slNoIndex + 1,
+          'position': slNoIndex == -1 ? slNoIndex : slNoIndex + 1,
         },
         {
           'name': 'Size',
           'type': 'dropdown',
           'options': longLineSize,
-          'position': sizeIndex + 1,
+          'position': sizeIndex == -1 ? sizeIndex : sizeIndex + 1,
         },
         {
           'name': 'Safe Working Load',
           'type': 'dropdown',
           'options': safeWorkingLoadItems,
-          'position': swlIndex + 1,
+          'position': swlIndex == -1 ? swlIndex : swlIndex + 1,
         },
         {
           'name': 'Time Between Overhauls',
           'type': 'dropdown',
           'options': timeBetweenOverhaulsItems,
-          'position': tboIndex + 8,
+          'position': tboIndex == -1 ? tboIndex : (tboIndex + detailItemSize),
         },
         {
           'name': 'Type',
           'type': 'dropdown',
           'options': longLineTypes,
-          'position': typeIndex + 1,
+          'position': typeIndex == -1 ? typeIndex : typeIndex + 1,
         },
         {
           'name': 'Length',
           'type': 'dropdown',
           'options': longLineLengths,
-          'position': lengthIndex + 1,
+          'position': lengthIndex == -1 ? lengthIndex : lengthIndex + 1,
         },
         {
           'name': 'Part Number',
           'type': 'text',
           'options': partNumber,
-          'position': partNoIndex + 1,
+          'position': partNoIndex == -1 ? partNoIndex : partNoIndex + 1,
         },
         {
           'name': 'Date Put Into Service',
           'type': 'date',
           'options': datePutIntoService,
-          'position': datePutIntoServiceIndex + 8,
+          'position': datePutIntoServiceIndex == -1
+              ? datePutIntoServiceIndex
+              : (datePutIntoServiceIndex + detailItemSize),
         },
         {
           'name': 'Date Purchased',
           'type': 'date',
           'options': datePurchased,
-          'position': datePurchasedIndex + 8,
+          'position': datePurchasedIndex == -1
+              ? datePurchasedIndex
+              : (datePurchasedIndex + detailItemSize),
         },
         // {
         //   'name': 'Inspection Date',
@@ -276,15 +331,16 @@ class _LongLinesFormState extends State<LongLinesForm> {
     try {
       FirebaseFirestore.instance
           .collection('categories')
-          .add(longLine)
+          .doc(currentCategory.value!.id!)
+          .set(longLine)
           .then((_) {
         formProperties.value = {
           'isFormSubmitted': true,
-          'isSizeVisible': formProperties.value['isSizeVisible'],
-          'isLengthVisible': formProperties.value['isLengthVisible'],
-          'isTypeVisible': formProperties.value['isTypeVisible'],
-          'isSwlVisible': formProperties.value['isSwlVisible'],
-          'isTboVisible': formProperties.value['isTboVisible']
+          'isSizeVisible': formProperties.value['isSizeVisible']!,
+          'isLengthVisible': formProperties.value['isLengthVisible']!,
+          'isTypeVisible': formProperties.value['isTypeVisible']!,
+          'isSwlVisible': formProperties.value['isSwlVisible']!,
+          'isTboVisible': formProperties.value['isTboVisible']!
         };
       });
     } catch (e) {
@@ -322,299 +378,317 @@ class _LongLinesFormState extends State<LongLinesForm> {
     Field? partNoField;
     Field? dpisField;
     Field? dpField;
+
     if (categoryModel != null && currentCategory.value != null) {
-      nameField =
-          categoryModel.fields.firstWhere((element) => element.name == 'Name');
-      slNoField = categoryModel.fields
-          .firstWhere((element) => element.name == 'Serial Number');
-      sizeField =
-          categoryModel.fields.firstWhere((element) => element.name == 'Size');
-      swlField = categoryModel.fields
-          .firstWhere((element) => element.name == 'Safe Working Load');
-      tboField = categoryModel.fields
-          .firstWhere((element) => element.name == 'Time Between Overhauls');
-      typeField =
-          categoryModel.fields.firstWhere((element) => element.name == 'Type');
-      lengthField = categoryModel.fields
-          .firstWhere((element) => element.name == 'Length');
-      partNoField = categoryModel.fields
-          .firstWhere((element) => element.name == 'Part Number');
-      dpisField = categoryModel.fields
-          .firstWhere((element) => element.name == 'Date Put Into Service');
-      dpField = categoryModel.fields
-          .firstWhere((element) => element.name == 'Date Purchased');
+      if (categoryModel.fields.isNotEmpty) {
+        nameField = categoryModel.fields
+            .firstWhere((element) => element.name == 'Name');
+
+        slNoField = categoryModel.fields
+            .firstWhere((element) => element.name == 'Serial Number');
+        sizeField = categoryModel.fields
+            .firstWhere((element) => element.name == 'Size');
+        swlField = categoryModel.fields
+            .firstWhere((element) => element.name == 'Safe Working Load');
+        tboField = categoryModel.fields
+            .firstWhere((element) => element.name == 'Time Between Overhauls');
+        typeField = categoryModel.fields
+            .firstWhere((element) => element.name == 'Type');
+        lengthField = categoryModel.fields
+            .firstWhere((element) => element.name == 'Length');
+        partNoField = categoryModel.fields
+            .firstWhere((element) => element.name == 'Part Number');
+        dpisField = categoryModel.fields
+            .firstWhere((element) => element.name == 'Date Put Into Service');
+        dpField = categoryModel.fields
+            .firstWhere((element) => element.name == 'Date Purchased');
+      }
     }
-    reorderableDetailsItems.value = [
-      Padding(
-        padding: const EdgeInsets.symmetric(vertical: 8.0),
-        key: ValueKey('name'),
-        child: ReorderableTextFieldWidget(
-          child: TextFieldWidget(
-            textCapitalization: TextCapitalization.sentences,
-            obscureText: false,
-            initialValue: nameField == null ? name : nameField.options,
-            onChanged: (val) => setState(() => name = val),
-            validator: (val) => val.isEmpty ? 'Enter a name' : null,
-            labelText: 'Name *',
-          ),
-        ),
-      ),
-      Padding(
-        padding: const EdgeInsets.symmetric(vertical: 8.0),
-        key: ValueKey('slNo'),
-        child: ReorderableTextFieldWidget(
-          child: TextFieldWidget(
-            textCapitalization: TextCapitalization.sentences,
-            obscureText: false,
-            initialValue: slNoField == null ? serialNumber : slNoField.options,
-            labelText: 'Serial Number *',
-            onChanged: (val) => setState(() => serialNumber = val),
-            validator: (val) => val.isEmpty ? 'Add a serial number' : null,
-          ),
-        ),
-      ),
-      ValueListenableBuilder<Map>(
-        key: ValueKey('size'),
-        valueListenable: formProperties,
-        builder: (_, isFormSubmittedValue, child) {
-          return Visibility(
-            visible: isFormSubmittedValue['isSizeVisible'],
-            child: Padding(
-              padding: const EdgeInsets.symmetric(vertical: 8.0),
-              child: ReorderableDropDownWidget(
-                  key: ValueKey('size'),
-                  onRemove: () {
-                    formProperties.value = {
-                      'isFormSubmitted':
-                          formProperties.value['isFormSubmitted'],
-                      'isSizeVisible': false,
-                      'isLengthVisible':
-                          formProperties.value['isLengthVisible'],
-                      'isTypeVisible': formProperties.value['isTypeVisible'],
-                      'isSwlVisible': formProperties.value['isSwlVisible'],
-                      'isTboVisible': formProperties.value['isTboVisible']
-                    };
-                  },
-                  isDraggable: !isFormSubmittedValue['isFormSubmitted'],
-                  addRemoveButton: !isFormSubmittedValue['isFormSubmitted'],
-                  labelText: 'Size *',
-                  items: sizeField == null ? [] : sizeField.options,
-                  validator: (val) => lgsize == null ? 'Add a Size' : null,
-                  onChanged: (val) {
-                    setState(() {
-                      lgsize = val;
-                      longLineSize.add(val);
-                    });
-                    FocusScope.of(context).requestFocus(FocusNode());
-                  }),
-            ),
-          );
-        },
-      ),
-      ValueListenableBuilder<Map>(
-        key: ValueKey('length'),
-        valueListenable: formProperties,
-        builder: (_, isFormSubmittedValue, child) {
-          return Visibility(
-            visible: isFormSubmittedValue['isLengthVisible'],
-            child: Padding(
-              padding: const EdgeInsets.symmetric(vertical: 8.0),
-              child: ReorderableDropDownWidget(
-                  key: ValueKey('length'),
-                  onRemove: () {
-                    formProperties.value = {
-                      'isFormSubmitted':
-                          formProperties.value['isFormSubmitted'],
-                      'isSizeVisible': formProperties.value['isSizeVisible'],
-                      'isLengthVisible': false,
-                      'isTypeVisible': formProperties.value['isTypeVisible'],
-                      'isSwlVisible': formProperties.value['isSwlVisible'],
-                      'isTboVisible': formProperties.value['isTboVisible']
-                    };
-                  },
-                  isDraggable: !isFormSubmittedValue['isFormSubmitted'],
-                  addRemoveButton: !isFormSubmittedValue['isFormSubmitted'],
-                  labelText: 'Length *',
-                  items: lengthField == null ? [] : lengthField.options,
-                  validator: (val) => length == null ? 'Add a length' : null,
-                  onChanged: (val) {
-                    setState(() {
-                      length = val;
-                      longLineLengths.add(val);
-                    });
-                    FocusScope.of(context).requestFocus(FocusNode());
-                  }),
-            ),
-          );
-        },
-      ),
-      ValueListenableBuilder<Map>(
-        valueListenable: formProperties,
-        key: ValueKey('type'),
-        builder: (_, isFormSubmittedValue, child) {
-          return Visibility(
-            visible: isFormSubmittedValue['isTypeVisible'],
-            child: Padding(
-              padding: const EdgeInsets.symmetric(vertical: 8.0),
-              child: ReorderableDropDownWidget(
-                key: ValueKey('type'),
-                onRemove: () {
-                  formProperties.value = {
-                    'isFormSubmitted': formProperties.value['isFormSubmitted'],
-                    'isSizeVisible': formProperties.value['isSizeVisible'],
-                    'isLengthVisible': formProperties.value['isLengthVisible'],
-                    'isTypeVisible': false,
-                    'isSwlVisible': formProperties.value['isSwlVisible'],
-                    'isTboVisible': formProperties.value['isTboVisible']
-                  };
-                },
-                isDraggable: !isFormSubmittedValue['isFormSubmitted'],
-                addRemoveButton: !isFormSubmittedValue['isFormSubmitted'],
-                labelText: 'Type *',
-                items: typeField == null ? [] : typeField.options,
-                validator: (val) => type == null ? 'Add/Select Type' : null,
-                onChanged: (val) {
-                  setState(() {
-                    type = val;
-                    longLineTypes.add(val);
-                  });
-                  FocusScope.of(context).requestFocus(FocusNode());
-                },
-              ),
-            ),
-          );
-        },
-      ),
-      ValueListenableBuilder<Map>(
-        valueListenable: formProperties,
-        key: ValueKey('swl'),
-        builder: (_, isFormSubmittedValue, child) {
-          return Visibility(
-            visible: isFormSubmittedValue['isSwlVisible'],
-            child: Padding(
-              padding: const EdgeInsets.symmetric(vertical: 8.0),
-              child: ReorderableDropDownWidget(
-                key: ValueKey('swl'),
-                onRemove: () {
-                  formProperties.value = {
-                    'isFormSubmitted': formProperties.value['isFormSubmitted'],
-                    'isSizeVisible': formProperties.value['isSizeVisible'],
-                    'isLengthVisible': formProperties.value['isLengthVisible'],
-                    'isTypeVisible': formProperties.value['isTypeVisible'],
-                    'isSwlVisible': false,
-                    'isTboVisible': formProperties.value['isTboVisible']
-                  };
-                },
-                isDraggable: !isFormSubmittedValue['isFormSubmitted'],
-                addRemoveButton: !isFormSubmittedValue['isFormSubmitted'],
-                labelText: 'Safe Working Load *',
-                items: swlField == null ? [] : swlField.options,
-                validator: (val) =>
-                    safeWorkingLoad == null ? 'Add a safe working load' : null,
-                onChanged: (val) {
-                  setState(() {
-                    safeWorkingLoad = val;
-                    safeWorkingLoadItems.add(val);
-                  });
-                  FocusScope.of(context).requestFocus(FocusNode());
-                },
-              ),
-            ),
-          );
-        },
-      ),
-      Padding(
-        padding: const EdgeInsets.symmetric(vertical: 8.0),
-        key: ValueKey('partNo'),
-        child: ReorderableTextFieldWidget(
-          child: TextFieldWidget(
-            textCapitalization: TextCapitalization.sentences,
-            obscureText: false,
-            initialValue:
-                partNoField == null ? partNumber : partNoField.options,
-            labelText: 'Part Number *',
-            onChanged: (val) => setState(() => partNumber = val),
-            validator: (val) => val.isEmpty ? 'Add a part number' : null,
-          ),
-        ),
-      ),
-    ];
-    reorderableMaintenanceItems.value = [
-      Padding(
-        key: ValueKey('datePutIntoService'),
-        padding: const EdgeInsets.symmetric(vertical: 8.0),
-        child: ReorderableDateTimePickerWidget(
-          child: DateTimePickerWidget(
-              format: DateFormat('MM-dd-yyyy'),
-              labelText: 'Date Put Into Service *',
-              onChanged: (value) => setState(
-                  () => datePutIntoService = Timestamp.fromDate(value)),
-              validator: (val) => val == null ? 'Enter a date' : null,
-              initialValue: formType == 'edit'
-                  ? DateTime.fromMillisecondsSinceEpoch(
-                      datePutIntoService.seconds * 1000)
-                  : dpisField != null
-                      ? (dpisField.options as Timestamp).toDate()
-                      : null),
-        ),
-      ),
-      Padding(
-        key: ValueKey('datePurchased'),
-        padding: const EdgeInsets.symmetric(vertical: 8.0),
-        child: ReorderableDateTimePickerWidget(
-          child: DateTimePickerWidget(
-              format: DateFormat('MM-dd-yyyy'),
-              labelText: 'Date Purchased *',
-              onChanged: (value) =>
-                  setState(() => datePurchased = Timestamp.fromDate(value)),
-              validator: (val) => val == null ? 'Enter a date' : null,
-              initialValue: formType == 'edit'
-                  ? DateTime.fromMillisecondsSinceEpoch(
-                      datePurchased.seconds * 1000)
-                  : dpField != null
-                      ? (dpField.options as Timestamp).toDate()
-                      : null),
-        ),
-      ),
-      ValueListenableBuilder<Map>(
-        valueListenable: formProperties,
-        key: ValueKey('tbo'),
-        builder: (_, isFormSubmittedValue, child) {
-          return Padding(
+
+    if (reorderableDetailsItems.value.isEmpty) {
+      reorderableDetailsItems.value = [
+        Padding(
             padding: const EdgeInsets.symmetric(vertical: 8.0),
-            child: Visibility(
-              visible: isFormSubmittedValue['isTboVisible'],
-              child: ReorderableDropDownWidget(
-                key: ValueKey('tbo'),
-                onRemove: () {
-                  formProperties.value = {
-                    'isFormSubmitted': formProperties.value['isFormSubmitted'],
-                    'isSizeVisible': formProperties.value['isSizeVisible'],
-                    'isLengthVisible': formProperties.value['isLengthVisible'],
-                    'isTypeVisible': formProperties.value['isTypeVisible'],
-                    'isSwlVisible': formProperties.value['isSwlVisible'],
-                    'isTboVisible': false
-                  };
-                },
-                isDraggable: !isFormSubmittedValue['isFormSubmitted'],
-                addRemoveButton: !isFormSubmittedValue['isFormSubmitted'],
-                labelText: 'Time Between Overhauls *',
-                items: tboField == null ? [] : tboField.options,
-                validator: (val) =>
-                    timeBetweenOverhauls == null ? 'Add a time' : null,
-                onChanged: (val) {
-                  setState(() {
-                    timeBetweenOverhaulsItems.add(val);
-                    timeBetweenOverhauls = val;
-                  });
-                  FocusScope.of(context).requestFocus(FocusNode());
-                },
+            key: ValueKey('name'),
+            child: ReorderableTextFieldWidget(
+              child: TextFieldWidget(
+                textCapitalization: TextCapitalization.sentences,
+                obscureText: false,
+                initialValue: nameField == null ? name : nameField.options,
+                onChanged: (val) => setState(() => name = val),
+                validator: (val) => val.isEmpty ? 'Enter a name' : null,
+                labelText: 'Name *',
               ),
+            )),
+        Padding(
+          padding: const EdgeInsets.symmetric(vertical: 8.0),
+          key: ValueKey('slNo'),
+          child: ReorderableTextFieldWidget(
+            child: TextFieldWidget(
+              textCapitalization: TextCapitalization.sentences,
+              obscureText: false,
+              initialValue:
+                  slNoField == null ? serialNumber : slNoField.options,
+              labelText: 'Serial Number *',
+              onChanged: (val) => setState(() => serialNumber = val),
+              validator: (val) => val.isEmpty ? 'Add a serial number' : null,
             ),
-          );
-        },
-      )
-    ];
+          ),
+        ),
+        ValueListenableBuilder<Map>(
+          key: ValueKey('size'),
+          valueListenable: formProperties,
+          builder: (_, isFormSubmittedValue, child) {
+            return Visibility(
+              visible: isFormSubmittedValue['isSizeVisible'],
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8.0),
+                child: ReorderableDropDownWidget(
+                    key: ValueKey('size'),
+                    onRemove: () {
+                      formProperties.value = {
+                        'isFormSubmitted':
+                            formProperties.value['isFormSubmitted']!,
+                        'isSizeVisible': false,
+                        'isLengthVisible':
+                            formProperties.value['isLengthVisible']!,
+                        'isTypeVisible': formProperties.value['isTypeVisible']!,
+                        'isSwlVisible': formProperties.value['isSwlVisible']!,
+                        'isTboVisible': formProperties.value['isTboVisible']!
+                      };
+                    },
+                    //isDraggable: false,
+                    isDraggable: !isFormSubmittedValue['isFormSubmitted'],
+                    addRemoveButton: !isFormSubmittedValue['isFormSubmitted'],
+                    labelText: 'Size *',
+                    items: sizeField == null ? [] : sizeField.options,
+                    validator: (val) => lgsize == null ? 'Add a Size' : null,
+                    onChanged: (val) {
+                      setState(() {
+                        lgsize = val;
+                        longLineSize.add(val);
+                      });
+                      FocusScope.of(context).requestFocus(FocusNode());
+                    }),
+              ),
+            );
+          },
+        ),
+        ValueListenableBuilder<Map>(
+          key: ValueKey('length'),
+          valueListenable: formProperties,
+          builder: (_, isFormSubmittedValue, child) {
+            return Visibility(
+              visible: isFormSubmittedValue['isLengthVisible'],
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8.0),
+                child: ReorderableDropDownWidget(
+                    key: ValueKey('length'),
+                    onRemove: () {
+                      formProperties.value = {
+                        'isFormSubmitted':
+                            formProperties.value['isFormSubmitted']!,
+                        'isSizeVisible': formProperties.value['isSizeVisible']!,
+                        'isLengthVisible': false,
+                        'isTypeVisible': formProperties.value['isTypeVisible']!,
+                        'isSwlVisible': formProperties.value['isSwlVisible']!,
+                        'isTboVisible': formProperties.value['isTboVisible']!
+                      };
+                    },
+                    isDraggable: !isFormSubmittedValue['isFormSubmitted'],
+                    addRemoveButton: !isFormSubmittedValue['isFormSubmitted'],
+                    labelText: 'Length *',
+                    items: lengthField == null ? [] : lengthField.options,
+                    validator: (val) => length == null ? 'Add a length' : null,
+                    onChanged: (val) {
+                      setState(() {
+                        length = val;
+                        longLineLengths.add(val);
+                      });
+                      FocusScope.of(context).requestFocus(FocusNode());
+                    }),
+              ),
+            );
+          },
+        ),
+        ValueListenableBuilder<Map>(
+          valueListenable: formProperties,
+          key: ValueKey('type'),
+          builder: (_, isFormSubmittedValue, child) {
+            return Visibility(
+              visible: isFormSubmittedValue['isTypeVisible'],
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8.0),
+                child: ReorderableDropDownWidget(
+                  key: ValueKey('type'),
+                  onRemove: () {
+                    formProperties.value = {
+                      'isFormSubmitted':
+                          formProperties.value['isFormSubmitted']!,
+                      'isSizeVisible': formProperties.value['isSizeVisible']!,
+                      'isLengthVisible':
+                          formProperties.value['isLengthVisible']!,
+                      'isTypeVisible': false,
+                      'isSwlVisible': formProperties.value['isSwlVisible']!,
+                      'isTboVisible': formProperties.value['isTboVisible']!
+                    };
+                  },
+                  isDraggable: !isFormSubmittedValue['isFormSubmitted'],
+                  addRemoveButton: !isFormSubmittedValue['isFormSubmitted'],
+                  labelText: 'Type *',
+                  items: typeField == null ? [] : typeField.options,
+                  validator: (val) => type == null ? 'Add/Select Type' : null,
+                  onChanged: (val) {
+                    setState(() {
+                      type = val;
+                      longLineTypes.add(val);
+                    });
+                    FocusScope.of(context).requestFocus(FocusNode());
+                  },
+                ),
+              ),
+            );
+          },
+        ),
+        ValueListenableBuilder<Map>(
+          valueListenable: formProperties,
+          key: ValueKey('swl'),
+          builder: (_, isFormSubmittedValue, child) {
+            return Visibility(
+              visible: isFormSubmittedValue['isSwlVisible'],
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8.0),
+                child: ReorderableDropDownWidget(
+                  key: ValueKey('swl'),
+                  onRemove: () {
+                    formProperties.value = {
+                      'isFormSubmitted':
+                          formProperties.value['isFormSubmitted']!,
+                      'isSizeVisible': formProperties.value['isSizeVisible']!,
+                      'isLengthVisible':
+                          formProperties.value['isLengthVisible']!,
+                      'isTypeVisible': formProperties.value['isTypeVisible']!,
+                      'isSwlVisible': false,
+                      'isTboVisible': formProperties.value['isTboVisible']!
+                    };
+                  },
+                  isDraggable: !isFormSubmittedValue['isFormSubmitted'],
+                  addRemoveButton: !isFormSubmittedValue['isFormSubmitted'],
+                  labelText: 'Safe Working Load *',
+                  items: swlField == null ? [] : swlField.options,
+                  validator: (val) => safeWorkingLoad == null
+                      ? 'Add a safe working load'
+                      : null,
+                  onChanged: (val) {
+                    setState(() {
+                      safeWorkingLoad = val;
+                      safeWorkingLoadItems.add(val);
+                    });
+                    FocusScope.of(context).requestFocus(FocusNode());
+                  },
+                ),
+              ),
+            );
+          },
+        ),
+        Padding(
+          padding: const EdgeInsets.symmetric(vertical: 8.0),
+          key: ValueKey('partNo'),
+          child: ReorderableTextFieldWidget(
+            child: TextFieldWidget(
+              textCapitalization: TextCapitalization.sentences,
+              obscureText: false,
+              initialValue:
+                  partNoField == null ? partNumber : partNoField.options,
+              labelText: 'Part Number *',
+              onChanged: (val) => setState(() => partNumber = val),
+              validator: (val) => val.isEmpty ? 'Add a part number' : null,
+            ),
+          ),
+        ),
+      ];
+    }
+
+    if (reorderableMaintenanceItems.value.isEmpty) {
+      reorderableMaintenanceItems.value = [
+        Padding(
+          key: ValueKey('datePutIntoService'),
+          padding: const EdgeInsets.symmetric(vertical: 8.0),
+          child: ReorderableDateTimePickerWidget(
+            child: DateTimePickerWidget(
+                format: DateFormat('MM-dd-yyyy'),
+                labelText: 'Date Put Into Service *',
+                onChanged: (value) => setState(
+                    () => datePutIntoService = Timestamp.fromDate(value)),
+                validator: (val) => val == null ? 'Enter a date' : null,
+                initialValue: formType == 'edit'
+                    ? DateTime.fromMillisecondsSinceEpoch(
+                        datePutIntoService.seconds * 1000)
+                    : dpisField != null
+                        ? (dpisField.options as Timestamp).toDate()
+                        : null),
+          ),
+        ),
+        Padding(
+          key: ValueKey('datePurchased'),
+          padding: const EdgeInsets.symmetric(vertical: 8.0),
+          child: ReorderableDateTimePickerWidget(
+            child: DateTimePickerWidget(
+                format: DateFormat('MM-dd-yyyy'),
+                labelText: 'Date Purchased *',
+                onChanged: (value) =>
+                    setState(() => datePurchased = Timestamp.fromDate(value)),
+                validator: (val) => val == null ? 'Enter a date' : null,
+                initialValue: formType == 'edit'
+                    ? DateTime.fromMillisecondsSinceEpoch(
+                        datePurchased.seconds * 1000)
+                    : dpField != null
+                        ? (dpField.options as Timestamp).toDate()
+                        : null),
+          ),
+        ),
+        ValueListenableBuilder<Map>(
+          valueListenable: formProperties,
+          key: ValueKey('tbo'),
+          builder: (_, isFormSubmittedValue, child) {
+            return Padding(
+              padding: const EdgeInsets.symmetric(vertical: 8.0),
+              child: Visibility(
+                visible: isFormSubmittedValue['isTboVisible'],
+                child: ReorderableDropDownWidget(
+                  key: ValueKey('tbo'),
+                  onRemove: () {
+                    formProperties.value = {
+                      'isFormSubmitted':
+                          formProperties.value['isFormSubmitted']!,
+                      'isSizeVisible': formProperties.value['isSizeVisible']!,
+                      'isLengthVisible':
+                          formProperties.value['isLengthVisible']!,
+                      'isTypeVisible': formProperties.value['isTypeVisible']!,
+                      'isSwlVisible': formProperties.value['isSwlVisible']!,
+                      'isTboVisible': false
+                    };
+                  },
+                  isDraggable: !isFormSubmittedValue['isFormSubmitted'],
+                  addRemoveButton: !isFormSubmittedValue['isFormSubmitted'],
+                  labelText: 'Time Between Overhauls *',
+                  items: tboField == null ? [] : tboField.options,
+                  validator: (val) =>
+                      timeBetweenOverhauls == null ? 'Add a time' : null,
+                  onChanged: (val) {
+                    setState(() {
+                      timeBetweenOverhaulsItems.add(val);
+                      timeBetweenOverhauls = val;
+                    });
+                    FocusScope.of(context).requestFocus(FocusNode());
+                  },
+                ),
+              ),
+            );
+          },
+        )
+      ];
+    }
   }
 
   @override
@@ -731,15 +805,15 @@ class _LongLinesFormState extends State<LongLinesForm> {
                                           formProperties.value = {
                                             'isFormSubmitted': false,
                                             'isSizeVisible': formProperties
-                                                .value['isSizeVisible'],
+                                                .value['isSizeVisible']!,
                                             'isLengthVisible': formProperties
-                                                .value['isLengthVisible'],
+                                                .value['isLengthVisible']!,
                                             'isTypeVisible': formProperties
-                                                .value['isTypeVisible'],
+                                                .value['isTypeVisible']!,
                                             'isSwlVisible': formProperties
-                                                .value['isSwlVisible'],
+                                                .value['isSwlVisible']!,
                                             'isTboVisible': formProperties
-                                                .value['isTboVisible']
+                                                .value['isTboVisible']!
                                           };
                                         }
                                       },
@@ -771,7 +845,9 @@ class _LongLinesFormState extends State<LongLinesForm> {
                               child: Container(
                                 child: ElevatedButton(
                                   onPressed: () {
-                                    submitForm();
+                                    if (_formKey.currentState!.validate()) {
+                                      submitForm();
+                                    }
                                   },
                                   child: Text('Finalize Form'),
                                   style: ElevatedButton.styleFrom(
@@ -800,66 +876,78 @@ class _LongLinesFormState extends State<LongLinesForm> {
                     },
                   ),
                   Consumer<CategoriesProvider>(
-                    builder: (context, provider, child) {
-                      final categories = provider.categoriesProvider;
-                      categories.forEach((element) {
-                        log(element.toJson().toString());
-                      });
-                      return ReorderableCatDropDownWidget(
-                          key: ValueKey('cat'),
-                          labelText: 'Category *',
-                          items: categories != null && categories.isNotEmpty
-                              ? categories.map((cat) => cat.name).toList()
-                              : [],
-                          validator: (val) =>
-                              category == null ? 'Add a Category' : null,
-                          onChanged: (val) {
-                            setState(() {
-                              category = val;
-                              final List<CategoryModel> filteredCats =
-                                  categories
-                                      .where((element) => element.name == val)
-                                      .toList();
-                              if (filteredCats != null &&
-                                  filteredCats.isNotEmpty) {
-                                filteredCats.forEach((element) {
-                                  log(element.name);
+                      builder: (context, provider, child) {
+                    final categories = provider.categoriesProvider;
+                    categories.forEach((element) {
+                      log(element.toJson().toString());
+                    });
+                    return ValueListenableBuilder<CategoryModel?>(
+                        valueListenable: currentCategory,
+                        builder: (_, activeCategory, child) {
+                          return ReorderableCatDropDownWidget(
+                              //key: ValueKey('cat'),
+                              labelText: 'Category *',
+                              selected: activeCategory != null
+                                  ? activeCategory.id
+                                  : null,
+                              items: categories,
+                              validator: (val) => activeCategory == null
+                                  ? 'Add a Category'
+                                  : null,
+                              onNew: (val) {
+                                addNewCategory(val);
+                              },
+                              onChanged: (val) {
+                                setState(() {
+                                  currentCategory.value = val;
+
+                                  // final List<CategoryModel> filteredCats =
+                                  //     categories
+                                  //         .where(
+                                  //             (element) => element.name == val)
+                                  //         .toList();
+                                  // if (filteredCats != null &&
+                                  //     filteredCats.isNotEmpty) {
+                                  //   filteredCats.forEach((element) {
+                                  //     log(element.name);
+                                  //   });
+                                  //currentCategory.value = filteredCats.first;
+                                  formProperties.value = {
+                                    'isFormSubmitted': true,
+                                    'isSizeVisible':
+                                        formProperties.value['isSizeVisible']!,
+                                    'isLengthVisible': formProperties
+                                        .value['isLengthVisible']!,
+                                    'isTypeVisible':
+                                        formProperties.value['isTypeVisible']!,
+                                    'isSwlVisible':
+                                        formProperties.value['isSwlVisible']!,
+                                    'isTboVisible':
+                                        formProperties.value['isTboVisible']!
+                                  };
+                                  // } else {
+                                  //   // try {
+                                  //   //   categories.add(CategoryModel(
+                                  //   //       fields: [], name: val, id: null));
+                                  //   // } catch (e) {
+                                  //   //   log(e.toString());
+                                  //   // }
+                                  // }
+                                  ;
                                 });
-                                currentCategory.value = filteredCats.first;
-                                formProperties.value = {
-                                  'isFormSubmitted': true,
-                                  'isSizeVisible':
-                                      formProperties.value['isSizeVisible'],
-                                  'isLengthVisible':
-                                      formProperties.value['isLengthVisible'],
-                                  'isTypeVisible':
-                                      formProperties.value['isTypeVisible'],
-                                  'isSwlVisible':
-                                      formProperties.value['isSwlVisible'],
-                                  'isTboVisible':
-                                      formProperties.value['isTboVisible']
-                                };
-                              } else {
-                                try {
-                                  categories.add(CategoryModel(
-                                      fields: [], name: val, id: null));
-                                } catch (e) {
-                                  log(e.toString());
-                                }
-                              }
-                              ;
-                            });
-                            otherDataVisible.value = true;
-                            FocusScope.of(context).requestFocus(FocusNode());
-                          });
-                    },
-                  ),
-                  SizedBox(height: size.height * .03),
+                                otherDataVisible.value = true;
+                                FocusScope.of(context)
+                                    .requestFocus(FocusNode());
+                              });
+                        });
+                  }),
+                  SizedBox(height: size.height * .04),
                   ValueListenableBuilder<CategoryModel?>(
                     valueListenable: currentCategory,
                     builder: (_, currentCategoryValue, child) {
                       reorderableDetailsItems.value = [];
                       addReorderableItems(currentCategoryValue);
+
                       return ValueListenableBuilder<bool>(
                         valueListenable: otherDataVisible,
                         builder: (_, value, child) {
@@ -882,16 +970,53 @@ class _LongLinesFormState extends State<LongLinesForm> {
                                   valueListenable: reorderableDetailsItems,
                                   builder:
                                       (_, reorderableDetailsItemsValue, child) {
-                                    return ReorderableListView.builder(
+                                    return ListView.builder(
                                       itemBuilder: (context, index) {
-                                        return reorderableDetailsItemsValue[
-                                            index];
+                                        return ValueListenableBuilder<Map>(
+                                            key: ValueKey('list1'),
+                                            valueListenable: formProperties,
+                                            builder: (_, isFormSubmittedValue,
+                                                child) {
+                                              return OptionMenuWidget(
+                                                visible: !isFormSubmittedValue[
+                                                    'isFormSubmitted']!,
+                                                key: ValueKey("list1_${index}"),
+                                                child:
+                                                    reorderableDetailsItemsValue[
+                                                        index],
+                                                isFirst: index == 0,
+                                                onMoveUp: () {
+                                                  int newIndex = index - 1;
+                                                  int oldIndex = index;
+
+                                                  final currentItem =
+                                                      reorderableDetailsItems
+                                                          .value[oldIndex];
+
+                                                  reorderableDetailsItems.value
+                                                      .removeAt(oldIndex);
+                                                  reorderableDetailsItems.value
+                                                      .insert(newIndex,
+                                                          currentItem);
+
+                                                  reorderableDetailsItems
+                                                      .notifyListeners();
+                                                },
+                                                onRemove: () {
+                                                  reorderableDetailsItems.value
+                                                      .removeAt(index);
+
+                                                  reorderableDetailsItems
+                                                      .notifyListeners();
+                                                },
+                                              );
+                                            });
                                       },
                                       shrinkWrap: true,
                                       physics: NeverScrollableScrollPhysics(),
                                       itemCount:
                                           reorderableDetailsItemsValue.length,
-                                      onReorder: (oldIndex, newIndex) {
+                                      /* onReorder: (oldIndex, newIndex) {
                                         final newUpdatedIndex =
                                             newIndex > oldIndex
                                                 ? newIndex - 1
@@ -903,11 +1028,11 @@ class _LongLinesFormState extends State<LongLinesForm> {
                                             .removeAt(oldIndex);
                                         reorderableDetailsItems.value.insert(
                                             newUpdatedIndex, currentItem);
-                                      },
+                                      },*/
                                     );
                                   },
                                 ),
-                                SizedBox(height: size.height * .04),
+                                SizedBox(height: size.height * .03),
                                 Text(
                                   'Maintenance',
                                   style: TextStyle(
@@ -916,13 +1041,20 @@ class _LongLinesFormState extends State<LongLinesForm> {
                                     color: Colors.black,
                                   ),
                                 ),
-                                SizedBox(height: size.height * .03),
-                                ReorderableListView.builder(
-                                  itemCount:
-                                      reorderableMaintenanceItems.value.length,
-                                  shrinkWrap: true,
-                                  physics: NeverScrollableScrollPhysics(),
-                                  onReorder: (oldIndex, newIndex) {
+                                SizedBox(height: size.height * .02),
+                                ValueListenableBuilder<List<Widget>>(
+                                    valueListenable:
+                                        reorderableMaintenanceItems,
+                                    builder: (_,
+                                        reorderableMaintenanceItemsValue,
+                                        child) {
+                                      return ListView.builder(
+                                        itemCount:
+                                            reorderableMaintenanceItemsValue
+                                                .length,
+                                        shrinkWrap: true,
+                                        physics: NeverScrollableScrollPhysics(),
+                                        /* onReorder: (oldIndex, newIndex) {
                                     final newUpdatedIndex = newIndex > oldIndex
                                         ? newIndex - 1
                                         : newIndex;
@@ -933,12 +1065,55 @@ class _LongLinesFormState extends State<LongLinesForm> {
                                         .removeAt(oldIndex);
                                     reorderableMaintenanceItems.value
                                         .insert(newUpdatedIndex, currentItem);
-                                  },
-                                  itemBuilder: (context, index) {
-                                    return reorderableMaintenanceItems
-                                        .value[index];
-                                  },
-                                ),
+                                  },*/
+                                        itemBuilder: (context, index) {
+                                          return ValueListenableBuilder<Map>(
+                                              key: ValueKey('list1'),
+                                              valueListenable: formProperties,
+                                              builder: (_, isFormSubmittedValue,
+                                                  child) {
+                                                return OptionMenuWidget(
+                                                  visible:
+                                                      !formProperties.value[
+                                                          'isFormSubmitted']!,
+                                                  key: ValueKey(
+                                                      "list2_${index}"),
+                                                  child:
+                                                      reorderableMaintenanceItems
+                                                          .value[index],
+                                                  isFirst: index == 0,
+                                                  onMoveUp: () {
+                                                    int newIndex = index - 1;
+                                                    int oldIndex = index;
+
+                                                    final currentItem =
+                                                        reorderableMaintenanceItems
+                                                            .value[oldIndex];
+
+                                                    reorderableMaintenanceItems
+                                                        .value
+                                                        .removeAt(oldIndex);
+                                                    reorderableMaintenanceItems
+                                                        .value
+                                                        .insert(newIndex,
+                                                            currentItem);
+
+                                                    reorderableMaintenanceItems
+                                                        .notifyListeners();
+                                                  },
+                                                  onRemove: () {
+                                                    reorderableMaintenanceItems
+                                                        .value
+                                                        .removeAt(index);
+
+                                                    reorderableMaintenanceItems
+                                                        .notifyListeners();
+                                                  },
+                                                );
+                                              });
+                                        },
+                                      );
+                                    }),
                               ],
                             ),
                           );
@@ -959,12 +1134,12 @@ class _LongLinesFormState extends State<LongLinesForm> {
                           return ElevatedButton(
                               child: Text('Submit'),
                               onPressed: () {
-                                var check = reorderableDetailsItems.value
+                                /* var check = reorderableDetailsItems.value
                                     .firstWhere((element) =>
                                         element.key == ValueKey('size'));
                                 var index = reorderableDetailsItems.value
                                     .indexOf(check);
-                                log(index.toString());
+                                log(index.toString());*/
                                 if (_formKey.currentState!.validate()) {
                                   submitForm();
                                 }
@@ -983,5 +1158,64 @@ class _LongLinesFormState extends State<LongLinesForm> {
   @override
   void dispose() {
     super.dispose();
+  }
+}
+
+class OptionMenuWidget extends StatefulWidget {
+  final Key key;
+  final Widget child;
+  final bool isFirst;
+
+  final bool visible;
+
+  final VoidCallback onMoveUp;
+  final VoidCallback onRemove;
+
+  OptionMenuWidget(
+      {required this.key,
+      required this.child,
+      required this.isFirst,
+      required this.onMoveUp,
+      required this.onRemove,
+      required this.visible});
+
+  @override
+  State<OptionMenuWidget> createState() => _OptionMenuWidgetState();
+}
+
+class _OptionMenuWidgetState extends State<OptionMenuWidget> {
+  @override
+  Widget build(BuildContext context) {
+    // TODO: implement build
+    return Row(
+      //key: widget.key,
+      children: [
+        Expanded(
+          child: widget.child,
+        ),
+        if (widget.visible)
+          PopupMenuButton(
+              onSelected: (value) {
+                //print("vishwa on popup menu change - $value");
+
+                if (value == 1) {
+                  widget.onMoveUp();
+                } else if (value == 2) {
+                  widget.onRemove();
+                }
+              },
+              itemBuilder: (context) => [
+                    if (!widget.isFirst)
+                      PopupMenuItem(
+                        child: Text("Move Up"),
+                        value: 1,
+                      ),
+                    PopupMenuItem(
+                      child: Text("Remove"),
+                      value: 2,
+                    )
+                  ])
+      ],
+    );
   }
 }
