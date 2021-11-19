@@ -4,6 +4,7 @@ import 'package:aerotec_flutter_app/providers/categories_provider.dart';
 import 'package:aerotec_flutter_app/providers/longlines_provider.dart';
 import 'package:aerotec_flutter_app/screens/long_lines/longlines.dart';
 import 'package:aerotec_flutter_app/screens/long_lines/longlines_form.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
@@ -53,6 +54,17 @@ class _HomeScreenState extends State<HomeScreen> {
         categoriesProvider.subData();
       },
     );
+
+    //removeAllCategory();
+  }
+
+  removeAllCategory() async {
+    //remove all categories
+    var collection = FirebaseFirestore.instance.collection('categories');
+    var snapshots = await collection.get();
+    for (var doc in snapshots.docs) {
+      await doc.reference.delete();
+    }
   }
 
   @override
@@ -110,6 +122,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               ),
                               RoundIconButton(
                                 icon: Icons.search,
+                                size: 26,
                                 onTap: () {
                                   setState(() {
                                     _showSearch = true;
@@ -125,26 +138,32 @@ class _HomeScreenState extends State<HomeScreen> {
                               autofocus: true,
                               decoration: InputDecoration(
                                   filled: true,
+                                  contentPadding: EdgeInsets.symmetric(
+                                      horizontal: 30, vertical: 5),
                                   fillColor: Colors.white,
-                                  prefixIcon: RoundIconButton(
-                                    icon: Icons.search,
-                                    onTap: () {
-                                      setState(() {
-                                        _showSearch = false;
-                                        FocusScope.of(context)
-                                            .requestFocus(FocusNode());
-                                      });
-                                    },
-                                  ),
+                                  prefixIcon: Container(
+                                      margin: EdgeInsets.only(right: 5),
+                                      child: RoundIconButton(
+                                        icon: Icons.search,
+                                        size: 20,
+                                        onTap: () {
+                                          setState(() {
+                                            _showSearch = false;
+                                            FocusScope.of(context)
+                                                .requestFocus(FocusNode());
+                                          });
+                                        },
+                                      )),
                                   focusedBorder: OutlineInputBorder(
                                       borderSide:
                                           BorderSide(color: Color(0xFFB6B6B6)),
-                                      borderRadius: BorderRadius.circular(100)),
+                                      borderRadius:
+                                          BorderRadius.circular(1000)),
                                   border: OutlineInputBorder(
                                       borderSide:
                                           BorderSide(color: Color(0xFFB6B6B6)),
                                       borderRadius:
-                                          BorderRadius.circular(100))),
+                                          BorderRadius.circular(1000))),
                             ),
                           )),
                           crossFadeState: !_showSearch
@@ -197,7 +216,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   (_, int index) {
                     final LongLinesModel longline =
                         provider.longLinesProvider[index];
-                    return LongLineCard(longline: longline);
+                    return LongLineCard(longline: longline, index: index);
                   },
                   childCount: provider.longLinesProvider.length,
                 ));
@@ -211,14 +230,12 @@ class _HomeScreenState extends State<HomeScreen> {
 }
 
 class RoundIconButton extends StatelessWidget {
-  const RoundIconButton({
-    Key? key,
-    this.icon,
-    this.onTap,
-  }) : super(key: key);
+  const RoundIconButton({Key? key, this.icon, this.onTap, this.size = 26})
+      : super(key: key);
 
   final IconData? icon;
   final VoidCallback? onTap;
+  final double size;
 
   @override
   Widget build(BuildContext context) {
@@ -233,7 +250,7 @@ class RoundIconButton extends StatelessWidget {
           ),
           child: Icon(
             icon,
-            size: 26,
+            size: size,
             color: Colors.white,
           )),
     );

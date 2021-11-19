@@ -1,4 +1,3 @@
-import 'dart:developer' as dev;
 import 'dart:math';
 
 import 'package:aerotec_flutter_app/models/longlines/category_model.dart';
@@ -245,23 +244,21 @@ class _RoundIconButton extends StatelessWidget {
 
 class ReorderableDropDownWidget extends StatefulWidget {
   final List<dynamic> items;
+  final String? selected;
   final onChanged;
+  final onNew;
   final validator;
   final String labelText;
-  final bool addRemoveButton;
-  final bool? isDraggable;
-  final Key key;
-  final onRemove;
+  final bool showAddButton;
 
   ReorderableDropDownWidget(
       {required this.items,
       required this.onChanged,
+      required this.onNew,
       required this.labelText,
+      required this.selected,
       required this.validator,
-      required this.key,
-      required this.onRemove,
-      this.isDraggable = false,
-      required this.addRemoveButton});
+      required this.showAddButton});
 
   @override
   State<ReorderableDropDownWidget> createState() =>
@@ -269,76 +266,73 @@ class ReorderableDropDownWidget extends StatefulWidget {
 }
 
 class _ReorderableDropDownWidgetState extends State<ReorderableDropDownWidget> {
-  final List<String> _items = [];
-
+  List<dynamic> get lists => widget.items;
   bool _addMode = false;
 
-  final categoryNotifier = ValueNotifier<String?>(null);
+  //final categoryNotifier = ValueNotifier<String?>(null);
   String value = '';
+  int selected = -1;
+
+  @override
+  void initState() {
+    // TODO: implement initState
+
+    if (widget.selected != null) {
+      selected = lists.indexWhere((element) => element == widget.selected!);
+    }
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
     if (!_addMode)
       return Row(
         children: [
-          // if (widget.isDraggable!)
-          //   Icon(
-          //     Icons.drag_indicator,
-          //     size: 27,
-          //     color: Colors.grey,
-          //   ),
-          ValueListenableBuilder<String?>(
-            valueListenable: categoryNotifier,
-            builder: (_, catValue, child) {
-              return Expanded(
-                child: Container(
-                  //height: 55,
-                  child: DropdownButtonFormField(
-                      hint: Text('- select or add new -'),
-                      validator: widget.validator,
-                      //menuMaxHeight: 40,
-                      decoration: InputDecoration(
-                        labelText: widget.labelText,
-                        enabledBorder: OutlineInputBorder(
-                          borderSide: BorderSide(
-                            color: Colors.grey,
-                            width: 1.0,
-                          ),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderSide: BorderSide(
-                            color: Colors.lightBlue,
-                            width: 2.0,
-                          ),
-                        ),
-                        fillColor: Colors.white,
-                        filled: true,
+          Expanded(
+            child: Container(
+              //height: 55,
+              child: DropdownButtonFormField<int>(
+                  hint: Text('- select or add new -'),
+                  validator: widget.validator,
+                  decoration: InputDecoration(
+                    labelText: widget.labelText,
+                    enabledBorder: OutlineInputBorder(
+                      borderSide: BorderSide(
+                        color: Colors.grey,
+                        width: 1.0,
                       ),
-                      isExpanded: true,
-                      selectedItemBuilder: (context) {
-                        return (widget.items + _items).map((dynamic item) {
-                          return Text(item.toString());
-                        }).toList();
-                      },
-                      items: (widget.items + _items).map(
-                        (dynamic item) {
-                          return DropdownMenuItem(
-                            child: Text(item.toString()),
-                            value: item,
-                          );
-                        },
-                      ).toList(),
-                      value: catValue,
-                      onChanged: (val) {
-                        dev.log(val.toString(), name: 'check');
-                        categoryNotifier.value = val as String?;
-                        widget.onChanged(val);
-                      }),
-                ),
-              );
-            },
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderSide: BorderSide(
+                        color: Colors.lightBlue,
+                        width: 2.0,
+                      ),
+                    ),
+                    fillColor: Colors.white,
+                    filled: true,
+                  ),
+                  isExpanded: true,
+                  selectedItemBuilder: (context) {
+                    return lists.map((dynamic item) {
+                      return Text("${item}");
+                    }).toList();
+                  },
+                  items: List.generate(
+                      lists.length,
+                      (index) => DropdownMenuItem(
+                            child: Text(lists[index]),
+                            value: index,
+                          )),
+                  value: selected == -1 ? null : selected,
+                  onChanged: (val) {
+                    setState(() {
+                      selected = val!; //as String?;
+                      widget.onChanged(lists[val]);
+                    });
+                  }),
+            ),
           ),
-          if (widget.addRemoveButton)
+          if (widget.showAddButton)
             _RoundIconButton(
               icon: Icons.add,
               onTap: () {
@@ -347,11 +341,6 @@ class _ReorderableDropDownWidgetState extends State<ReorderableDropDownWidget> {
                 });
               },
             ),
-          // if (widget.addRemoveButton)
-          //   _RoundIconButton(
-          //     icon: Icons.remove,
-          //     onTap: widget.onRemove,
-          //   )
         ],
       );
     else
@@ -365,7 +354,7 @@ class _ReorderableDropDownWidgetState extends State<ReorderableDropDownWidget> {
               initialValue: '',
               onChanged: (val) => setState(() => value = val),
               validator: (val) =>
-                  categoryNotifier == '' ? 'Add ${widget.labelText}' : null,
+                  value == "" ? 'Add ${widget.labelText}' : null,
               labelText: 'Add ${widget.labelText}',
             ),
           ),
@@ -374,10 +363,9 @@ class _ReorderableDropDownWidgetState extends State<ReorderableDropDownWidget> {
             onTap: () {
               if (value.isNotEmpty)
                 setState(() {
-                  _items.add(value);
-
-                  widget.onChanged(value);
-                  categoryNotifier.value = value;
+                  if (widget.onNew != null) {
+                    widget.onNew(value);
+                  }
 
                   _addMode = !_addMode;
                 });
@@ -401,8 +389,10 @@ class _ReorderableDropDownWidgetState extends State<ReorderableDropDownWidget> {
 
 class ReorderableCatDropDownWidget extends StatefulWidget {
   final List<CategoryModel> items;
-  final onChanged;
-  var onNew;
+  Function(CategoryModel) onChanged;
+  //CategoryBuilder onChanged;
+  //var onNew;
+  Function(String) onNew;
   final validator;
   final String labelText;
   final bool removeButton;
@@ -413,7 +403,7 @@ class ReorderableCatDropDownWidget extends StatefulWidget {
   ReorderableCatDropDownWidget(
       {required this.items,
       required this.onChanged,
-      this.onNew,
+      required this.onNew,
       required this.labelText,
       required this.validator,
       //required this.key,
@@ -452,19 +442,25 @@ class _ReorderableCatDropDownWidgetState
   }
 
   @override
+  void didUpdateWidget(ReorderableCatDropDownWidget oldWidget) {
+    if (widget.selected != null) {
+      setState(() {
+        this.selectedCat =
+            lists.indexWhere((element) => element.id == widget.selected!);
+      });
+    }
+
+    super.didUpdateWidget(oldWidget);
+  }
+
+  @override
   Widget build(BuildContext context) {
     if (!_addMode)
       return Row(
         children: [
-          if (widget.isDraggable!)
-            Icon(
-              Icons.drag_indicator,
-              size: 27,
-              color: Colors.grey,
-            ),
           Expanded(
             child: Container(
-              height: 55,
+              //height: 55,
               child: DropdownButtonFormField<int>(
                   hint: Text('- select or add new -'),
                   validator: widget.validator,

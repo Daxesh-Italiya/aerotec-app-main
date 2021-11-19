@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/material.dart';
 
 class CategoryModel {
   String? id;
@@ -66,16 +67,29 @@ class CategoryModel {
 }
 
 class Field {
-  final String name;
-  final String type;
-  final dynamic options;
-  final int position;
+  String? name;
+  String? type;
+  List<dynamic> options;
+  int? position;
+  String? value;
+
+  Widget? widget;
+  String? mainType;
+  bool? removed;
+  //List<String> dropdown;
+
+  Timestamp? timestamp;
 
   Field(
       {required this.name,
       required this.type,
-      required this.options,
-      required this.position});
+      this.options = const [],
+      required this.position,
+      this.widget,
+      this.mainType,
+      this.removed,
+      this.timestamp,
+      this.value});
 
   factory Field.fromJson(Map json) {
     return Field(
@@ -83,6 +97,8 @@ class Field {
       options: json['options'],
       position: json['position'],
       type: json['type'],
+      value: json['value'],
+      mainType: json['main_type'] ?? "other",
     );
   }
 
@@ -91,5 +107,7 @@ class Field {
         "name": name,
         "position": position,
         "type": type,
+        "value": value,
+        "main_type": mainType ?? "other",
       };
 }

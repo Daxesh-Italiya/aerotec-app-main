@@ -34,7 +34,10 @@ class CategoriesProvider extends ChangeNotifier {
   getData(snapshot) {
     _categoriesProvider.clear();
     snapshot.docs.forEach((DocumentSnapshot document) {
+      print("cat data - ${document.data()}");
+
       CategoryModel categoryModel = CategoryModel.fromSnapshot(document);
+      debugPrint("cat name - ${categoryModel.name}, id - ${categoryModel.id}");
       _categoriesProvider.add(categoryModel);
     });
     loading(false);
