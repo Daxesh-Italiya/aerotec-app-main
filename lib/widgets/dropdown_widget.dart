@@ -250,11 +250,13 @@ class ReorderableDropDownWidget extends StatefulWidget {
   final validator;
   final String labelText;
   final bool showAddButton;
+  bool enable;
 
   ReorderableDropDownWidget(
       {required this.items,
       required this.onChanged,
       required this.onNew,
+      this.enable = true,
       required this.labelText,
       required this.selected,
       required this.validator,
@@ -273,6 +275,10 @@ class _ReorderableDropDownWidgetState extends State<ReorderableDropDownWidget> {
   String value = '';
   int selected = -1;
 
+  FocusNode focusNode = FocusNode();
+
+  Widget textField = SizedBox();
+
   @override
   void initState() {
     // TODO: implement initState
@@ -280,6 +286,18 @@ class _ReorderableDropDownWidgetState extends State<ReorderableDropDownWidget> {
     if (widget.selected != null) {
       selected = lists.indexWhere((element) => element == widget.selected!);
     }
+
+    textField = TextFieldWidget(
+      //autofocus: true,
+      textCapitalization: TextCapitalization.sentences,
+      obscureText: false,
+      initialValue: '',
+      focusNode: focusNode,
+      onChanged: (val) => setState(() => value = val),
+      validator: (val) => value == "" ? 'Add ${widget.labelText}' : null,
+      labelText: 'Add ${widget.labelText}',
+    );
+
     super.initState();
   }
 
@@ -339,6 +357,14 @@ class _ReorderableDropDownWidgetState extends State<ReorderableDropDownWidget> {
                 setState(() {
                   _addMode = !_addMode;
                 });
+
+                Future.delayed(Duration(milliseconds: 100)).then((value) {
+                  if (_addMode) {
+                    FocusScope.of(context).requestFocus(focusNode);
+                  } else {
+                    focusNode.unfocus();
+                  }
+                });
               },
             ),
         ],
@@ -347,16 +373,7 @@ class _ReorderableDropDownWidgetState extends State<ReorderableDropDownWidget> {
       return Row(
         children: [
           Expanded(
-            child: TextFieldWidget(
-              autofocus: true,
-              textCapitalization: TextCapitalization.sentences,
-              obscureText: false,
-              initialValue: '',
-              onChanged: (val) => setState(() => value = val),
-              validator: (val) =>
-                  value == "" ? 'Add ${widget.labelText}' : null,
-              labelText: 'Add ${widget.labelText}',
-            ),
+            child: textField,
           ),
           _RoundIconButton(
             icon: Icons.done,

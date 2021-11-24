@@ -8,7 +8,7 @@ class DateTimePickerWidget extends StatelessWidget {
   final validator;
   final DateTime? initialValue;
   final String labelText;
-
+  bool enable;
   DateTimePickerWidget({
     Key? key,
     required this.format,
@@ -16,6 +16,7 @@ class DateTimePickerWidget extends StatelessWidget {
     required this.initialValue,
     required this.labelText,
     required this.validator,
+    this.enable = true,
   }) : super(key: key);
 
   @override
@@ -26,6 +27,8 @@ class DateTimePickerWidget extends StatelessWidget {
         validator: validator,
         format: format,
         onChanged: onChanged,
+        //autofocus: true,
+        enabled: enable,
         initialValue: initialValue,
         decoration: InputDecoration(
           floatingLabelBehavior: FloatingLabelBehavior.always,

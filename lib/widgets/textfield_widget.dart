@@ -7,7 +7,9 @@ class TextFieldWidget extends StatelessWidget {
   final String labelText;
   final bool obscureText;
   final bool autofocus;
+  bool enable;
   final TextCapitalization textCapitalization;
+  FocusNode? focusNode;
 
   TextFieldWidget({
     required this.initialValue,
@@ -16,6 +18,8 @@ class TextFieldWidget extends StatelessWidget {
     required this.labelText,
     required this.obscureText,
     required this.textCapitalization,
+    this.enable = true,
+    this.focusNode,
     this.autofocus = false,
   });
 
@@ -26,6 +30,8 @@ class TextFieldWidget extends StatelessWidget {
         obscureText: obscureText,
         initialValue: initialValue,
         autofocus: autofocus,
+        enabled: enable,
+        focusNode: focusNode,
         decoration: InputDecoration(
             floatingLabelBehavior: FloatingLabelBehavior.always,
             labelText: labelText,

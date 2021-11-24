@@ -217,6 +217,7 @@ class _LongLinesFormState extends State<LongLinesForm> {
     setState(() {
       isModifyMode = false;
       showOtherDetails = true;
+      isModifyMode = true;
       //currentCategory = categoryModel;
       FocusScope.of(context).requestFocus(FocusNode());
       initItems(categoryModel);
@@ -400,6 +401,7 @@ class _LongLinesFormState extends State<LongLinesForm> {
                 child: TextFieldWidget(
                   textCapitalization: TextCapitalization.sentences,
                   obscureText: false,
+                  //autofocus: true,
                   initialValue: "",
                   onChanged: (val) => setState(() => fieldTitle = val),
                   validator: (val) => val.isEmpty ? 'Enter Field Title' : null,
@@ -881,6 +883,8 @@ class _OptionMenuWidgetState extends State<OptionMenuWidget> {
       return TextFieldWidget(
         textCapitalization: TextCapitalization.sentences,
         obscureText: false,
+        autofocus: false,
+        enable: !widget.showMenu,
         initialValue: widget.field.value ?? "",
         onChanged: (val) => setState(() => widget.field.value = val),
         validator: (val) => val.isEmpty ? 'Enter a ${widget.field.name}' : null,
@@ -890,6 +894,7 @@ class _OptionMenuWidgetState extends State<OptionMenuWidget> {
       return ReorderableDropDownWidget(
         showAddButton: widget.showMenu,
         labelText: '${widget.field.name} *',
+        enable: !widget.showMenu,
         items: widget.field.options == null ? [] : widget.field.options,
         validator: (val) =>
             widget.field.options.isEmpty ? 'Add a ${widget.field.name}' : null,
@@ -910,6 +915,7 @@ class _OptionMenuWidgetState extends State<OptionMenuWidget> {
       return DateTimePickerWidget(
         format: DateFormat('MM-dd-yyyy'),
         labelText: '${widget.field.name} *',
+        enable: !widget.showMenu,
         onChanged: (value) =>
             setState(() => widget.field.timestamp = Timestamp.fromDate(value)),
         validator: (val) => val == null ? 'Enter a date' : null,
