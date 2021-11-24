@@ -884,7 +884,7 @@ class _OptionMenuWidgetState extends State<OptionMenuWidget> {
         textCapitalization: TextCapitalization.sentences,
         obscureText: false,
         autofocus: false,
-        enable: !widget.showMenu,
+        //enable: !widget.showMenu,
         initialValue: widget.field.value ?? "",
         onChanged: (val) => setState(() => widget.field.value = val),
         validator: (val) => val.isEmpty ? 'Enter a ${widget.field.name}' : null,
@@ -894,7 +894,7 @@ class _OptionMenuWidgetState extends State<OptionMenuWidget> {
       return ReorderableDropDownWidget(
         showAddButton: widget.showMenu,
         labelText: '${widget.field.name} *',
-        enable: !widget.showMenu,
+        //enable: !widget.showMenu,
         items: widget.field.options == null ? [] : widget.field.options,
         validator: (val) =>
             widget.field.options.isEmpty ? 'Add a ${widget.field.name}' : null,
@@ -915,7 +915,7 @@ class _OptionMenuWidgetState extends State<OptionMenuWidget> {
       return DateTimePickerWidget(
         format: DateFormat('MM-dd-yyyy'),
         labelText: '${widget.field.name} *',
-        enable: !widget.showMenu,
+        //enable: !widget.showMenu,
         onChanged: (value) =>
             setState(() => widget.field.timestamp = Timestamp.fromDate(value)),
         validator: (val) => val == null ? 'Enter a date' : null,
