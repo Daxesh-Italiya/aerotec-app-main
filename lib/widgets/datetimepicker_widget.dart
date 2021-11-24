@@ -35,6 +35,7 @@ class DateTimePickerWidget extends StatelessWidget {
           suffixIcon: Icon(Icons.calendar_today_sharp),
           hintText: 'Select Date',
           filled: true,
+          contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 20),
           enabledBorder: OutlineInputBorder(
             borderSide: BorderSide(
               color: Colors.grey,

@@ -69,7 +69,7 @@ class CategoryModel {
 class Field {
   String? name;
   String? type;
-  List<dynamic> options;
+  List<dynamic> options = [];
   int? position;
   String? value;
 
@@ -83,7 +83,7 @@ class Field {
   Field(
       {required this.name,
       required this.type,
-      this.options = const [],
+      required this.options,
       required this.position,
       this.widget,
       this.mainType,

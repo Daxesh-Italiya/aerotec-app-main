@@ -39,9 +39,18 @@ class _LongLinesFormState extends State<LongLinesForm> {
   List<Field> othersFieldItems = [];
 
   List<Field> allDefaultFields = [
-    Field(type: "text", name: 'Name', mainType: "details", position: 1),
     Field(
-        type: "text", name: 'Serial Number', mainType: "details", position: 2),
+        type: "text",
+        options: [],
+        name: 'Name',
+        mainType: "details",
+        position: 1),
+    Field(
+        options: [],
+        type: "text",
+        name: 'Serial Number',
+        mainType: "details",
+        position: 2),
     Field(
         type: "dropdown",
         name: 'Size',
@@ -66,18 +75,26 @@ class _LongLinesFormState extends State<LongLinesForm> {
         options: [],
         mainType: "details",
         position: 6),
-    Field(type: "text", name: 'Part Number', mainType: "details", position: 7),
     Field(
+        options: [],
+        type: "text",
+        name: 'Part Number',
+        mainType: "details",
+        position: 7),
+    Field(
+        options: [],
         type: "date",
         name: 'Date Put Into Service',
         mainType: "maintenance",
         position: 8),
     Field(
+        options: [],
         type: "date",
         name: 'Date Purchased',
         mainType: "maintenance",
         position: 9),
     Field(
+        options: [],
         type: "dropdown",
         name: 'Time Between Overhauls',
         mainType: "maintenance",
@@ -254,6 +271,7 @@ class _LongLinesFormState extends State<LongLinesForm> {
   addNewField() {
     othersFieldItems.add(Field(
         name: fieldTitle,
+        options: [],
         type: fieldType.toLowerCase(),
         position: 0,
         mainType: "others"));

@@ -22,7 +22,6 @@ class TextFieldWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      //height: 50,
       child: TextFormField(
         obscureText: obscureText,
         initialValue: initialValue,
@@ -30,6 +29,7 @@ class TextFieldWidget extends StatelessWidget {
         decoration: InputDecoration(
             floatingLabelBehavior: FloatingLabelBehavior.always,
             labelText: labelText,
+            contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 20),
             //errorStyle: TextStyle(color: Colors.red, fontSize: 18),
             labelStyle: TextStyle(),
             enabledBorder: OutlineInputBorder(
