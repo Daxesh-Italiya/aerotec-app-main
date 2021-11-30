@@ -41,8 +41,8 @@ class CategoryModel {
     return CategoryModel(
         id: document.id,
         name: data['name'] as String,
-        fields: List.generate((data['fields'] as List).length,
-            (index) => Field.fromJson(data['fields'][index]))
+        fields: List.generate(
+            (data['fields'] as List).length, (index) => Field.fromJson(data['fields'][index]))
         // length: data['length'] as String,
         // inspectionDate: data['inspectionDate'] as Timestamp,
         // nextInspectionDate: data['nextInspectionDate'] as Timestamp,
@@ -80,16 +80,17 @@ class Field {
 
   Timestamp? timestamp;
 
-  Field(
-      {required this.name,
-      required this.type,
-      required this.options,
-      required this.position,
-      this.widget,
-      this.mainType,
-      this.removed,
-      this.timestamp,
-      this.value});
+  Field({
+    required this.name,
+    required this.type,
+    required this.options,
+    required this.position,
+    this.widget,
+    this.mainType,
+    this.removed,
+    this.timestamp,
+    this.value,
+  });
 
   factory Field.fromJson(Map json) {
     return Field(

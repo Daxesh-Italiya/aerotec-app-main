@@ -20,8 +20,7 @@ class LongLinesForm extends StatefulWidget {
   final LongLinesModel? longline;
   final String formType;
 
-  const LongLinesForm(
-      {required this.longline, @required required this.formType});
+  const LongLinesForm({required this.longline, @required required this.formType});
 
   _LongLinesFormState createState() => _LongLinesFormState();
 }
@@ -39,66 +38,41 @@ class _LongLinesFormState extends State<LongLinesForm> {
   List<Field> othersFieldItems = [];
 
   List<Field> allDefaultFields = [
+    Field(type: "text", options: [], name: 'Name', mainType: "details", position: 1),
+    Field(options: [], type: "text", name: 'Part Number', mainType: "details", position: 2),
+    Field(options: [], type: "text", name: 'Serial Number', mainType: "details", position: 3),
+    Field(type: "dropdown", name: 'Size', options: [], mainType: "details", position: 4),
+    Field(type: "dropdown", name: 'Length', options: [], mainType: "details", position: 5),
+    Field(type: "dropdown", name: 'Type', options: [], mainType: "details", position: 6),
     Field(
-        type: "text",
-        options: [],
-        name: 'Name',
-        mainType: "details",
-        position: 1),
+      type: "dropdown",
+      name: 'Safe Working Load',
+      options: [],
+      mainType: "details",
+      position: 7,
+    ),
+    // Maintenance
     Field(
-        options: [],
-        type: "text",
-        name: 'Serial Number',
-        mainType: "details",
-        position: 2),
+      options: [],
+      type: "date",
+      name: 'Date Put Into Service',
+      mainType: "maintenance",
+      position: 8,
+    ),
     Field(
-        type: "dropdown",
-        name: 'Size',
-        options: [],
-        mainType: "details",
-        position: 3),
+      options: [],
+      type: "date",
+      name: 'Date Purchased',
+      mainType: "maintenance",
+      position: 9,
+    ),
     Field(
-        type: "dropdown",
-        name: 'Length',
-        options: [],
-        mainType: "details",
-        position: 4),
-    Field(
-        type: "dropdown",
-        name: 'Type',
-        options: [],
-        mainType: "details",
-        position: 5),
-    Field(
-        type: "dropdown",
-        name: 'Safe Working Load',
-        options: [],
-        mainType: "details",
-        position: 6),
-    Field(
-        options: [],
-        type: "text",
-        name: 'Part Number',
-        mainType: "details",
-        position: 7),
-    Field(
-        options: [],
-        type: "date",
-        name: 'Date Put Into Service',
-        mainType: "maintenance",
-        position: 8),
-    Field(
-        options: [],
-        type: "date",
-        name: 'Date Purchased',
-        mainType: "maintenance",
-        position: 9),
-    Field(
-        options: [],
-        type: "dropdown",
-        name: 'Time Between Overhauls',
-        mainType: "maintenance",
-        position: 10),
+      options: ['12 Months'],
+      type: "dropdown",
+      name: 'Time Between Overhauls',
+      mainType: "maintenance",
+      position: 10,
+    ),
   ];
 
   Timestamp inspectionDate = Timestamp.fromDate(new DateTime.now());
@@ -108,7 +82,9 @@ class _LongLinesFormState extends State<LongLinesForm> {
 
   List<CategoryModel> categoryList = [];
   CategoryModel? currentCategory;
-  bool isModifyMode = false;
+
+  // Flag for moify form
+  bool _isModifyMode = false;
 
   bool showOtherDetails = false;
 
@@ -127,8 +103,7 @@ class _LongLinesFormState extends State<LongLinesForm> {
   void initState() {
     super.initState();
     longLinesProvider = Provider.of<LongLinesProvider>(context, listen: false);
-    categoriesProvider =
-        Provider.of<CategoriesProvider>(context, listen: false);
+    categoriesProvider = Provider.of<CategoriesProvider>(context, listen: false);
     formType = widget.formType;
     if (formType == 'edit') populateForm();
     initCategoryData();
@@ -182,8 +157,7 @@ class _LongLinesFormState extends State<LongLinesForm> {
   addNewCategory(String cat) async {
     print("addNewCategory start ${cat}");
 
-    DocumentReference doc =
-        await FirebaseFirestore.instance.collection('categories').add({
+    DocumentReference doc = await FirebaseFirestore.instance.collection('categories').add({
       'name': cat,
       'fields': List.generate(allDefaultFields.length, (index) {
         Field e = allDefaultFields[index];
@@ -200,8 +174,7 @@ class _LongLinesFormState extends State<LongLinesForm> {
 
     print("addNewCategory cat id ${doc.id}");
 
-    CategoryModel categoryModel =
-        CategoryModel(fields: allDefaultFields, name: cat, id: doc.id);
+    CategoryModel categoryModel = CategoryModel(fields: allDefaultFields, name: cat, id: doc.id);
 
     Fluttertoast.showToast(
         msg: "New Category Added",
@@ -215,9 +188,8 @@ class _LongLinesFormState extends State<LongLinesForm> {
     initCategoryData();
 
     setState(() {
-      isModifyMode = false;
       showOtherDetails = true;
-      isModifyMode = true;
+      _isModifyMode = true;
       //currentCategory = categoryModel;
       FocusScope.of(context).requestFocus(FocusNode());
       initItems(categoryModel);
@@ -225,13 +197,9 @@ class _LongLinesFormState extends State<LongLinesForm> {
   }
 
   finalizeForm() {
-    List<Field> fields1 =
-        detailsFieldItems.where((e) => e.mainType == "details").toList();
-    List<Field> fields2 = maintenanceFieldItems
-        .where((e) => e.mainType == "maintenance")
-        .toList();
-    List<Field> fields3 =
-        othersFieldItems.where((e) => e.mainType == "others").toList();
+    List<Field> fields1 = detailsFieldItems.where((e) => e.mainType == "details").toList();
+    List<Field> fields2 = maintenanceFieldItems.where((e) => e.mainType == "maintenance").toList();
+    List<Field> fields3 = othersFieldItems.where((e) => e.mainType == "others").toList();
 
     List<Field> allFields = [...fields1, ...fields2, ...fields3];
 
@@ -260,8 +228,13 @@ class _LongLinesFormState extends State<LongLinesForm> {
           .then((_) {
         categoriesProvider.notifyListeners();
         initCategoryData();
+
+        // FocusScope.of(context).unfocus();
+
+        FocusScope.of(context).requestFocus(FocusNode());
+
         setState(() {
-          isModifyMode = false;
+          _isModifyMode = false;
         });
       });
     } catch (e) {
@@ -270,18 +243,16 @@ class _LongLinesFormState extends State<LongLinesForm> {
   }
 
   addNewField() {
-    othersFieldItems.add(Field(
-        name: fieldTitle,
-        options: [],
-        type: fieldType.toLowerCase(),
-        position: 0,
-        mainType: "others"));
+    detailsFieldItems.add(
+      Field(
+          name: fieldTitle,
+          options: [],
+          type: fieldType.toLowerCase(),
+          position: 0,
+          mainType: "details"),
+    );
 
-    List<Field> allFields = [
-      ...detailsFieldItems,
-      ...maintenanceFieldItems,
-      ...othersFieldItems
-    ];
+    List<Field> allFields = [...detailsFieldItems, ...maintenanceFieldItems, ...othersFieldItems];
 
     final longLine = {
       'name': currentCategory!.name,
@@ -324,11 +295,7 @@ class _LongLinesFormState extends State<LongLinesForm> {
   }
 
   submitForm() {
-    List<Field> allFields = [
-      ...detailsFieldItems,
-      ...maintenanceFieldItems,
-      ...othersFieldItems
-    ];
+    List<Field> allFields = [...detailsFieldItems, ...maintenanceFieldItems, ...othersFieldItems];
 
     final longLine = {
       'name': currentCategory!.name,
@@ -374,94 +341,96 @@ class _LongLinesFormState extends State<LongLinesForm> {
       fieldType = "Text";
     });
 
-    showModalBottomSheet(
-      context: context,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(
-          top: Radius.circular(20),
-        ),
-      ),
-      clipBehavior: Clip.antiAliasWithSaveLayer,
-      builder: (BuildContext context) {
-        return Container(
-          child: Column(
-            children: [
-              Container(
-                  padding: EdgeInsets.all(15),
-                  child: Text(
-                    "Additional Field",
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.normal,
+    showDialog(
+        context: context,
+        builder: (context) {
+          return Dialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(20),
+            ),
+            elevation: 16,
+            child: Container(
+              height: 340,
+              child: Column(
+                children: [
+                  Container(
+                    padding: EdgeInsets.all(15),
+                    child: Text(
+                      "Additional Field",
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.normal,
+                      ),
                     ),
-                  )),
-              Container(
-                margin: EdgeInsets.only(top: 50),
-                padding: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
-                child: TextFieldWidget(
-                  textCapitalization: TextCapitalization.sentences,
-                  obscureText: false,
-                  //autofocus: true,
-                  initialValue: "",
-                  onChanged: (val) => setState(() => fieldTitle = val),
-                  validator: (val) => val.isEmpty ? 'Enter Field Title' : null,
-                  labelText: 'Title *',
-                ),
-              ),
-              Container(
-                  padding: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
-                  child: ReorderableDropDownWidget(
-                    showAddButton: false,
-                    labelText: 'Field Type *',
-                    items: ["Text", "Dropdown", "Date"],
-                    validator: (val) => null,
-                    onNew: (val) {
-                      //widget.field.options = val;
-                      //widget.field.options.add(val);
-                    },
-                    onChanged: (val) {
-                      setState(() {
-                        fieldType = val;
-                      });
-                      FocusScope.of(context).requestFocus(FocusNode());
-                    },
-                    selected: fieldType,
-                  )),
-              Container(
-                  padding: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
-                  child: ElevatedButton(
-                      child: Text('Add Field to Form'),
-                      onPressed: () {
-                        if (fieldTitle.isEmpty) {
-                          Fluttertoast.showToast(
-                              msg: "Please add field title",
-                              toastLength: Toast.LENGTH_SHORT,
-                              gravity: ToastGravity.CENTER,
-                              timeInSecForIosWeb: 1,
-                              backgroundColor: Colors.black87,
-                              textColor: Colors.white,
-                              fontSize: 16.0);
-                          return;
-                        } else if (fieldType.isEmpty) {
-                          Fluttertoast.showToast(
-                              msg: "Please add field type",
-                              toastLength: Toast.LENGTH_SHORT,
-                              gravity: ToastGravity.CENTER,
-                              timeInSecForIosWeb: 1,
-                              backgroundColor: Colors.black87,
-                              textColor: Colors.white,
-                              fontSize: 16.0);
-                          return;
-                        }
+                  ),
+                  Container(
+                    margin: EdgeInsets.only(top: 50),
+                    padding: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+                    child: TextFieldWidget(
+                      textCapitalization: TextCapitalization.sentences,
+                      obscureText: false,
+                      //autofocus: true,
+                      initialValue: "",
+                      onChanged: (val) => setState(() => fieldTitle = val),
+                      validator: (val) => val.isEmpty ? 'Enter Field Title' : null,
+                      labelText: 'Title *',
+                    ),
+                  ),
+                  Container(
+                    padding: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+                    child: ReorderableDropDownWidget(
+                      showAddButton: false,
+                      labelText: 'Field Type *',
+                      items: ["Text", "Dropdown", "Date"],
+                      validator: (val) => null,
+                      onNew: (val) {
+                        //widget.field.options = val;
+                        //widget.field.options.add(val);
+                      },
+                      onChanged: (val) {
+                        setState(() {
+                          fieldType = val;
+                        });
+                        FocusScope.of(context).requestFocus(FocusNode());
+                      },
+                      selected: fieldType,
+                    ),
+                  ),
+                  Container(
+                      padding: EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+                      child: ElevatedButton(
+                          child: Text('Add Field to Form'),
+                          onPressed: () {
+                            if (fieldTitle.isEmpty) {
+                              Fluttertoast.showToast(
+                                  msg: "Please add field title",
+                                  toastLength: Toast.LENGTH_SHORT,
+                                  gravity: ToastGravity.CENTER,
+                                  timeInSecForIosWeb: 1,
+                                  backgroundColor: Colors.black87,
+                                  textColor: Colors.white,
+                                  fontSize: 16.0);
+                              return;
+                            } else if (fieldType.isEmpty) {
+                              Fluttertoast.showToast(
+                                  msg: "Please add field type",
+                                  toastLength: Toast.LENGTH_SHORT,
+                                  gravity: ToastGravity.CENTER,
+                                  timeInSecForIosWeb: 1,
+                                  backgroundColor: Colors.black87,
+                                  textColor: Colors.white,
+                                  fontSize: 16.0);
+                              return;
+                            }
 
-                        addNewField();
-                        Navigator.pop(context);
-                      }))
-            ],
-          ),
-        );
-      },
-    );
+                            addNewField();
+                            Navigator.pop(context);
+                          }))
+                ],
+              ),
+            ),
+          );
+        });
   }
 
   initItems(CategoryModel categoryModel) {
@@ -493,9 +462,8 @@ class _LongLinesFormState extends State<LongLinesForm> {
 
   @override
   Widget build(BuildContext context) {
-    LongLinesProvider longLinesProvider =
-        Provider.of<LongLinesProvider>(context);
-    final screenHeight = MediaQuery.of(context).size.height;
+    LongLinesProvider longLinesProvider = Provider.of<LongLinesProvider>(context);
+
     Size size = MediaQuery.of(context).size;
     if (imagePath.isNotEmpty) {
       List<String> filename = this.widget.longline!.imagePath.split('.');
@@ -554,8 +522,7 @@ class _LongLinesFormState extends State<LongLinesForm> {
                                         decoration: BoxDecoration(
                                           shape: BoxShape.circle,
                                           image: DecorationImage(
-                                              image: FileImage(_image!),
-                                              fit: BoxFit.cover),
+                                              image: FileImage(_image!), fit: BoxFit.cover),
                                         ),
                                       ),
                               ),
@@ -563,19 +530,23 @@ class _LongLinesFormState extends State<LongLinesForm> {
                                 bottom: 10,
                                 right: 50,
                                 child: PopupMenuButton(
+                                  enabled: !_isModifyMode,
                                   offset: Offset(-15, 50),
                                   child: Container(
-                                      width: 60,
-                                      height: 60,
-                                      decoration: BoxDecoration(
-                                          color: Colors.white,
-                                          shape: BoxShape.circle,
-                                          border: Border.all(
-                                            width: 1,
-                                            color: Colors.grey,
-                                          )),
-                                      child: Center(
-                                          child: Icon(Icons.photo_camera))),
+                                    width: 60,
+                                    height: 60,
+                                    decoration: BoxDecoration(
+                                      color: Colors.white,
+                                      shape: BoxShape.circle,
+                                      border: Border.all(
+                                        width: 1,
+                                        color: Colors.grey,
+                                      ),
+                                    ),
+                                    child: Center(
+                                      child: Icon(Icons.photo_camera),
+                                    ),
+                                  ),
                                   onSelected: (val) {
                                     if (val == 0) {
                                       openCamera();
@@ -584,10 +555,8 @@ class _LongLinesFormState extends State<LongLinesForm> {
                                     }
                                   },
                                   itemBuilder: (_) => [
-                                    PopupMenuItem(
-                                        value: 0, child: Text('Take Photo')),
-                                    PopupMenuItem(
-                                        value: 1, child: Text('Choose Image')),
+                                    PopupMenuItem(value: 0, child: Text('Take Photo')),
+                                    PopupMenuItem(value: 1, child: Text('Choose Image')),
                                   ],
                                 ),
                               ),
@@ -598,13 +567,12 @@ class _LongLinesFormState extends State<LongLinesForm> {
                                   onSelected: (val) {
                                     if (val == 0) {
                                       setState(() {
-                                        isModifyMode = true;
+                                        _isModifyMode = true;
                                       });
                                     }
                                   },
                                   itemBuilder: (context) => [
-                                    PopupMenuItem(
-                                        value: 0, child: Text('Modify Form')),
+                                    PopupMenuItem(value: 0, child: Text('Modify Form')),
                                   ],
                                   child: Center(
                                       child: Icon(
@@ -624,7 +592,7 @@ class _LongLinesFormState extends State<LongLinesForm> {
                               )),
                         ),
                         SizedBox(height: size.height * .03),
-                        if (isModifyMode)
+                        if (_isModifyMode)
                           Align(
                             alignment: Alignment.topRight,
                             child: Container(
@@ -655,19 +623,15 @@ class _LongLinesFormState extends State<LongLinesForm> {
                       ],
                     ),
                   ),
-                  Consumer<CategoriesProvider>(
-                      builder: (context, provider, child) {
+                  Consumer<CategoriesProvider>(builder: (context, provider, child) {
                     categoryList = provider.categoriesProvider;
 
                     return ReorderableCatDropDownWidget(
                         //key: ValueKey('cat'),
                         labelText: 'Category *',
-                        selected: currentCategory != null
-                            ? currentCategory!.id
-                            : null,
+                        selected: currentCategory != null ? currentCategory!.id : null,
                         items: categoryList,
-                        validator: (val) =>
-                            currentCategory == null ? 'Add a Category' : null,
+                        validator: (val) => currentCategory == null ? 'Add a Category' : null,
                         onNew: (val) {
                           addNewCategory(val);
                         },
@@ -702,9 +666,8 @@ class _LongLinesFormState extends State<LongLinesForm> {
                             Field field = detailsFieldItems[index];
 
                             return OptionMenuWidget(
-                              showMenu: isModifyMode,
                               key: ValueKey("list1_${index}"),
-                              isFirst: index == 0,
+                              isFirst: index == 3,
                               onMoveUp: () {
                                 int newIndex = index - 1;
                                 int oldIndex = index;
@@ -722,6 +685,8 @@ class _LongLinesFormState extends State<LongLinesForm> {
                                 setState(() {});
                               },
                               field: field,
+                              enable: !_isModifyMode,
+                              showMenu: _isModifyMode,
                             );
                           },
                           shrinkWrap: true,
@@ -729,6 +694,27 @@ class _LongLinesFormState extends State<LongLinesForm> {
                           itemCount: detailsFieldItems.length,
                         ),
                         SizedBox(height: size.height * .03),
+                        if (_isModifyMode)
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                'Additional Fields',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.black,
+                                ),
+                              ),
+                              RoundIconButton(
+                                icon: Icons.add,
+                                onTap: () {
+                                  addOtherField();
+                                },
+                              ),
+                            ],
+                          ),
+                        if (_isModifyMode) SizedBox(height: size.height * .03),
                         Text(
                           'Maintenance',
                           style: TextStyle(
@@ -752,12 +738,10 @@ class _LongLinesFormState extends State<LongLinesForm> {
                                 int newIndex = index - 1;
                                 int oldIndex = index;
 
-                                final currentItem =
-                                    maintenanceFieldItems[oldIndex];
+                                final currentItem = maintenanceFieldItems[oldIndex];
 
                                 maintenanceFieldItems.removeAt(oldIndex);
-                                maintenanceFieldItems.insert(
-                                    newIndex, currentItem);
+                                maintenanceFieldItems.insert(newIndex, currentItem);
 
                                 setState(() {});
                               },
@@ -766,30 +750,12 @@ class _LongLinesFormState extends State<LongLinesForm> {
                                 setState(() {});
                               },
                               field: field,
-                              showMenu: isModifyMode,
+                              enable: !_isModifyMode,
+                              showMenu: _isModifyMode,
                             );
                           },
                         ),
                         SizedBox(height: size.height * .03),
-                        Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(
-                                'Additional Fields',
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.black,
-                                ),
-                              ),
-                              RoundIconButton(
-                                icon: Icons.add,
-                                onTap: () {
-                                  addOtherField();
-                                },
-                              ),
-                            ]),
-                        SizedBox(height: size.height * .02),
                         ListView.builder(
                           itemCount: othersFieldItems.length,
                           shrinkWrap: true,
@@ -818,7 +784,8 @@ class _LongLinesFormState extends State<LongLinesForm> {
                                 setState(() {});
                               },
                               field: field,
-                              showMenu: isModifyMode,
+                              enable: !_isModifyMode,
+                              showMenu: _isModifyMode,
                             );
                           },
                         )
@@ -827,19 +794,24 @@ class _LongLinesFormState extends State<LongLinesForm> {
                   ),
                   Visibility(
                     visible: showOtherDetails,
-                    child: Builder(builder: (BuildContext context) {
-                      if (longLinesProvider.isLoading)
-                        return Center(
-                          child: CircularProgressIndicator(),
-                        );
-                      return ElevatedButton(
+                    child: Builder(
+                      builder: (BuildContext context) {
+                        if (longLinesProvider.isLoading)
+                          return Center(
+                            child: CircularProgressIndicator(),
+                          );
+                        return ElevatedButton(
                           child: Text('Submit'),
-                          onPressed: () {
-                            if (_formKey.currentState!.validate()) {
-                              submitForm();
-                            }
-                          });
-                    }),
+                          onPressed: _isModifyMode == true
+                              ? null
+                              : () {
+                                  if (_formKey.currentState!.validate()) {
+                                    submitForm();
+                                  }
+                                },
+                        );
+                      },
+                    ),
                   )
                 ],
               ),
@@ -860,6 +832,8 @@ class OptionMenuWidget extends StatefulWidget {
   final Field field;
   final bool isFirst;
   final bool showMenu;
+  final bool enable;
+  final bool? isAddMode;
 
   final VoidCallback onMoveUp;
   final VoidCallback onRemove;
@@ -871,6 +845,8 @@ class OptionMenuWidget extends StatefulWidget {
     required this.showMenu,
     required this.onMoveUp,
     required this.onRemove,
+    required this.enable,
+    this.isAddMode,
   });
 
   @override
@@ -884,7 +860,7 @@ class _OptionMenuWidgetState extends State<OptionMenuWidget> {
         textCapitalization: TextCapitalization.sentences,
         obscureText: false,
         autofocus: false,
-        //enable: !widget.showMenu,
+        enable: widget.enable,
         initialValue: widget.field.value ?? "",
         onChanged: (val) => setState(() => widget.field.value = val),
         validator: (val) => val.isEmpty ? 'Enter a ${widget.field.name}' : null,
@@ -894,10 +870,8 @@ class _OptionMenuWidgetState extends State<OptionMenuWidget> {
       return ReorderableDropDownWidget(
         showAddButton: widget.showMenu,
         labelText: '${widget.field.name} *',
-        //enable: !widget.showMenu,
-        items: widget.field.options == null ? [] : widget.field.options,
-        validator: (val) =>
-            widget.field.options.isEmpty ? 'Add a ${widget.field.name}' : null,
+        items: widget.field.options.isEmpty ? [] : widget.field.options,
+        validator: (val) => widget.field.options.isEmpty ? 'Add a ${widget.field.name}' : null,
         onNew: (val) {
           //widget.field.options = val;
           widget.field.options.add(val);
@@ -915,13 +889,11 @@ class _OptionMenuWidgetState extends State<OptionMenuWidget> {
       return DateTimePickerWidget(
         format: DateFormat('MM-dd-yyyy'),
         labelText: '${widget.field.name} *',
-        //enable: !widget.showMenu,
-        onChanged: (value) =>
-            setState(() => widget.field.timestamp = Timestamp.fromDate(value)),
+        enable: widget.enable,
+        onChanged: (value) => setState(() => widget.field.timestamp = Timestamp.fromDate(value)),
         validator: (val) => val == null ? 'Enter a date' : null,
-        initialValue: widget.field.timestamp != null
-            ? (widget.field.timestamp as Timestamp).toDate()
-            : null,
+        initialValue:
+            widget.field.timestamp != null ? (widget.field.timestamp as Timestamp).toDate() : null,
         /* initialValue: formType == 'edit'
               ? DateTime.fromMillisecondsSinceEpoch(
               datePurchased.seconds * 1000)
@@ -942,15 +914,23 @@ class _OptionMenuWidgetState extends State<OptionMenuWidget> {
       children: [
         Expanded(
           child: Container(
-              margin: EdgeInsets.symmetric(vertical: 10), child: child()),
+            margin: EdgeInsets.symmetric(vertical: 10),
+            child: child(),
+          ),
         ),
-        if (widget.showMenu)
+        if (widget.showMenu &&
+            widget.field.mainType != 'maintenance' &&
+            (widget.field.name != 'Name' &&
+                widget.field.name != 'Part Number' &&
+                widget.field.name != 'Serial Number'))
           PopupMenuButton(
               onSelected: (value) {
                 if (value == 1) {
                   widget.onMoveUp();
                 } else if (value == 2) {
                   widget.onRemove();
+                } else if (value == 3) {
+                  // TODO: Add optional validation
                 }
               },
               itemBuilder: (context) => [
@@ -962,6 +942,10 @@ class _OptionMenuWidgetState extends State<OptionMenuWidget> {
                     PopupMenuItem(
                       child: Text("Remove"),
                       value: 2,
+                    ),
+                    PopupMenuItem(
+                      child: Text("Optional"),
+                      value: 3,
                     )
                   ])
       ],

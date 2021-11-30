@@ -44,6 +44,12 @@ class TextFieldWidget extends StatelessWidget {
                 width: 1.0,
               ),
             ),
+            disabledBorder: OutlineInputBorder(
+              borderSide: BorderSide(
+                color: Colors.grey,
+                width: 1.0,
+              ),
+            ),
             focusedBorder: OutlineInputBorder(
               borderSide: BorderSide(
                 color: Colors.lightBlue,
@@ -51,10 +57,11 @@ class TextFieldWidget extends StatelessWidget {
               ),
             ),
             errorBorder: OutlineInputBorder(
-                borderSide: BorderSide(
-              color: Colors.red,
-              width: 2.0,
-            )),
+              borderSide: BorderSide(
+                color: Colors.red,
+                width: 2.0,
+              ),
+            ),
             fillColor: Colors.white,
             filled: true,
             isDense: true

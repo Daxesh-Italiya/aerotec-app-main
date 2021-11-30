@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:aerotec_flutter_app/models/longlines/category_model.dart';
 import 'package:aerotec_flutter_app/widgets/widgets.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class DropDownFormWidget extends StatelessWidget {
   final List<String> items;
@@ -58,6 +59,7 @@ class DropDownFormWidget extends StatelessWidget {
   }
 }
 
+/*
 class CustomDropDownFormWidget extends StatefulWidget {
   final List<String> items;
   final String value;
@@ -79,8 +81,7 @@ class CustomDropDownFormWidget extends StatefulWidget {
       this.removeButton = false});
 
   @override
-  State<CustomDropDownFormWidget> createState() =>
-      _CustomDropDownFormWidgetState();
+  State<CustomDropDownFormWidget> createState() => _CustomDropDownFormWidgetState();
 }
 
 class _CustomDropDownFormWidgetState extends State<CustomDropDownFormWidget>
@@ -170,8 +171,7 @@ class _CustomDropDownFormWidgetState extends State<CustomDropDownFormWidget>
               obscureText: false,
               initialValue: '',
               onChanged: (val) => setState(() => value = val),
-              validator: (val) =>
-                  value == '' ? 'Add ${widget.labelText}' : null,
+              validator: (val) => value == '' ? 'Add ${widget.labelText}' : null,
               labelText: 'Add ${widget.labelText}',
             ),
           ),
@@ -207,6 +207,7 @@ class _CustomDropDownFormWidgetState extends State<CustomDropDownFormWidget>
   // TODO: implement wantKeepAlive
   bool get wantKeepAlive => true;
 }
+*/
 
 class _RoundIconButton extends StatelessWidget {
   const _RoundIconButton({
@@ -250,21 +251,19 @@ class ReorderableDropDownWidget extends StatefulWidget {
   final validator;
   final String labelText;
   final bool showAddButton;
-  bool enable;
 
-  ReorderableDropDownWidget(
-      {required this.items,
-      required this.onChanged,
-      required this.onNew,
-      this.enable = true,
-      required this.labelText,
-      required this.selected,
-      required this.validator,
-      required this.showAddButton});
+  ReorderableDropDownWidget({
+    required this.items,
+    required this.onChanged,
+    required this.onNew,
+    required this.labelText,
+    required this.selected,
+    required this.validator,
+    required this.showAddButton,
+  });
 
   @override
-  State<ReorderableDropDownWidget> createState() =>
-      _ReorderableDropDownWidgetState();
+  State<ReorderableDropDownWidget> createState() => _ReorderableDropDownWidgetState();
 }
 
 class _ReorderableDropDownWidgetState extends State<ReorderableDropDownWidget> {
@@ -281,14 +280,11 @@ class _ReorderableDropDownWidgetState extends State<ReorderableDropDownWidget> {
 
   @override
   void initState() {
-    // TODO: implement initState
-
     if (widget.selected != null) {
       selected = lists.indexWhere((element) => element == widget.selected!);
     }
 
     textField = TextFieldWidget(
-      //autofocus: true,
       textCapitalization: TextCapitalization.sentences,
       obscureText: false,
       initialValue: '',
@@ -302,15 +298,185 @@ class _ReorderableDropDownWidgetState extends State<ReorderableDropDownWidget> {
   }
 
   @override
+  void dispose() {
+    super.dispose();
+  }
+
+  _onButtonClose() {
+    debugPrint('Close text field!!');
+    setState(() {
+      _addMode = false;
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
-    if (!_addMode)
+    debugPrint('AddMode = $_addMode && ShowAddButton ${widget.showAddButton}');
+
+    if (_addMode == true && widget.showAddButton == false) {
+      _addMode = false;
+    }
+
+    if (widget.showAddButton && _addMode) {
+      return Row(
+        children: [
+          Expanded(
+            child: textField,
+          ),
+          _RoundIconButton(
+            icon: Icons.done,
+            onTap: () {
+              if (value.isNotEmpty)
+                setState(() {
+                  if (widget.onNew != null) {
+                    widget.onNew(value);
+                  }
+
+                  _addMode = false;
+                });
+            },
+          ),
+          Transform.rotate(
+            angle: pi / 4,
+            child: _RoundIconButton(
+              icon: Icons.add,
+              onTap: _onButtonClose,
+            ),
+          ),
+        ],
+      );
+    } else if (widget.showAddButton) {
       return Row(
         children: [
           Expanded(
             child: Container(
               //height: 55,
               child: DropdownButtonFormField<int>(
-                  hint: Text('- select or add new -'),
+                  hint: Text('Add dropdown options'),
+                  validator: widget.validator,
+                  decoration: InputDecoration(
+                    labelText: widget.labelText,
+                    enabledBorder: OutlineInputBorder(
+                      borderSide: BorderSide(
+                        color: Colors.grey,
+                        width: 1.0,
+                      ),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderSide: BorderSide(
+                        color: Colors.lightBlue,
+                        width: 2.0,
+                      ),
+                    ),
+                    fillColor: Colors.white,
+                    filled: true,
+                  ),
+                  isExpanded: true,
+                  selectedItemBuilder: (context) {
+                    return lists.map((dynamic item) {
+                      return Text("${item}");
+                    }).toList();
+                  },
+                  items: List.generate(
+                      lists.length,
+                      (index) => DropdownMenuItem(
+                            child: Text(lists[index]),
+                            value: index,
+                          )),
+                  value: selected == -1 ? null : selected,
+                  onChanged: (val) {
+                    setState(() {
+                      selected = val!; //as String?;
+                      widget.onChanged(lists[val]);
+                    });
+                  }),
+            ),
+          ),
+          _RoundIconButton(
+            icon: Icons.add,
+            onTap: () {
+              setState(() {
+                _addMode = true;
+              });
+
+              Future.delayed(Duration(milliseconds: 100)).then((value) {
+                if (_addMode) {
+                  FocusScope.of(context).requestFocus(focusNode);
+                } else {
+                  focusNode.unfocus();
+                }
+              });
+            },
+          ),
+        ],
+      );
+    } else if (widget.showAddButton == false) {
+      return Row(
+        children: [
+          Expanded(
+            child: Container(
+              //height: 55,
+              child: DropdownButtonFormField<int>(
+                  hint: Text('Add dropdown options'),
+                  validator: widget.validator,
+                  decoration: InputDecoration(
+                    labelText: widget.labelText,
+                    enabledBorder: OutlineInputBorder(
+                      borderSide: BorderSide(
+                        color: Colors.grey,
+                        width: 1.0,
+                      ),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderSide: BorderSide(
+                        color: Colors.lightBlue,
+                        width: 2.0,
+                      ),
+                    ),
+                    fillColor: Colors.white,
+                    filled: true,
+                  ),
+                  isExpanded: true,
+                  selectedItemBuilder: (context) {
+                    return lists.map((dynamic item) {
+                      return Text("${item}");
+                    }).toList();
+                  },
+                  items: List.generate(
+                      lists.length,
+                      (index) => DropdownMenuItem(
+                            child: Text(lists[index]),
+                            value: index,
+                          )),
+                  value: selected == -1 ? null : selected,
+                  onChanged: (val) {
+                    setState(() {
+                      selected = val!; //as String?;
+                      widget.onChanged(lists[val]);
+                    });
+                  }),
+            ),
+          ),
+        ],
+      );
+    } else {
+      return Row(
+        children: [
+          Expanded(
+            child: textField,
+          ),
+        ],
+      );
+    }
+
+    /*if (!_addMode)
+      return Row(
+        children: [
+          Expanded(
+            child: Container(
+              //height: 55,
+              child: DropdownButtonFormField<int>(
+                  hint: Text('Add dropdown options'),
                   validator: widget.validator,
                   decoration: InputDecoration(
                     labelText: widget.labelText,
@@ -355,7 +521,7 @@ class _ReorderableDropDownWidgetState extends State<ReorderableDropDownWidget> {
               icon: Icons.add,
               onTap: () {
                 setState(() {
-                  _addMode = !_addMode;
+                  _addMode = true;
                 });
 
                 Future.delayed(Duration(milliseconds: 100)).then((value) {
@@ -384,23 +550,21 @@ class _ReorderableDropDownWidgetState extends State<ReorderableDropDownWidget> {
                     widget.onNew(value);
                   }
 
-                  _addMode = !_addMode;
+                  _addMode = false;
                 });
+
+              debugPrint('AddMode $_addMode');
             },
           ),
           Transform.rotate(
             angle: pi / 4,
             child: _RoundIconButton(
               icon: Icons.add,
-              onTap: () {
-                setState(() {
-                  _addMode = !_addMode;
-                });
-              },
+              onTap: _onButtonClose,
             ),
           )
         ],
-      );
+      );*/
   }
 }
 
@@ -429,12 +593,10 @@ class ReorderableCatDropDownWidget extends StatefulWidget {
       this.selected});
 
   @override
-  State<ReorderableCatDropDownWidget> createState() =>
-      _ReorderableCatDropDownWidgetState();
+  State<ReorderableCatDropDownWidget> createState() => _ReorderableCatDropDownWidgetState();
 }
 
-class _ReorderableCatDropDownWidgetState
-    extends State<ReorderableCatDropDownWidget> {
+class _ReorderableCatDropDownWidgetState extends State<ReorderableCatDropDownWidget> {
   bool _addMode = false;
   int selectedCat = -1;
 
@@ -447,8 +609,7 @@ class _ReorderableCatDropDownWidgetState
     // TODO: implement initState
 
     if (widget.selected != null) {
-      selectedCat =
-          lists.indexWhere((element) => element.id == widget.selected!);
+      selectedCat = lists.indexWhere((element) => element.id == widget.selected!);
       //widget.onChanged(widget.selected);
 
       print("vishwa selected index - ${selectedCat}");
@@ -462,8 +623,7 @@ class _ReorderableCatDropDownWidgetState
   void didUpdateWidget(ReorderableCatDropDownWidget oldWidget) {
     if (widget.selected != null) {
       setState(() {
-        this.selectedCat =
-            lists.indexWhere((element) => element.id == widget.selected!);
+        this.selectedCat = lists.indexWhere((element) => element.id == widget.selected!);
       });
     }
 

@@ -45,6 +45,12 @@ class DateTimePickerWidget extends StatelessWidget {
               width: 1.0,
             ),
           ),
+          disabledBorder: OutlineInputBorder(
+            borderSide: BorderSide(
+              color: Colors.grey,
+              width: 1.0,
+            ),
+          ),
         ),
         onShowPicker: (context, currentValue) {
           return showDatePicker(
