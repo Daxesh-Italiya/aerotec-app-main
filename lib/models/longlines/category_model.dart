@@ -56,14 +56,6 @@ class CategoryModel {
         // datePutIntoService: data['datePutIntoService'] as Timestamp,
         );
   }
-
-  Map toJson() {
-    return {
-      'id': id.toString(),
-      'name': name.toString(),
-      'fields': List<dynamic>.from(fields.map((x) => x.toJson())),
-    };
-  }
 }
 
 class Field {
@@ -76,7 +68,7 @@ class Field {
   Widget? widget;
   String? mainType;
   bool? removed;
-  //List<String> dropdown;
+  bool? isOptional = false;
 
   Timestamp? timestamp;
 
@@ -90,6 +82,7 @@ class Field {
     this.removed,
     this.timestamp,
     this.value,
+    this.isOptional,
   });
 
   factory Field.fromJson(Map json) {
@@ -100,15 +93,7 @@ class Field {
       type: json['type'],
       value: json['value'],
       mainType: json['main_type'] ?? "other",
+      isOptional: json['is_optional'],
     );
   }
-
-  Map<String, dynamic> toJson() => {
-        "options": options,
-        "name": name,
-        "position": position,
-        "type": type,
-        "value": value,
-        "main_type": mainType ?? "other",
-      };
 }

@@ -203,6 +203,10 @@ class _LongLinesFormState extends State<LongLinesForm> {
 
     List<Field> allFields = [...fields1, ...fields2, ...fields3];
 
+    debugPrint('AllFields => ${allFields.length}');
+
+    if (!_formKey.currentState!.validate()) return;
+
     final longLine = {
       'name': currentCategory!.name,
       'fields': List.generate(allFields.length, (index) {
@@ -213,7 +217,8 @@ class _LongLinesFormState extends State<LongLinesForm> {
           "options": e.options,
           "position": index + 1,
           "main_type": e.mainType,
-          "value": e.value
+          "value": e.value,
+          "is_optional": e.isOptional!,
         };
       })
     };
@@ -228,8 +233,6 @@ class _LongLinesFormState extends State<LongLinesForm> {
           .then((_) {
         categoriesProvider.notifyListeners();
         initCategoryData();
-
-        // FocusScope.of(context).unfocus();
 
         FocusScope.of(context).requestFocus(FocusNode());
 
@@ -684,6 +687,7 @@ class _LongLinesFormState extends State<LongLinesForm> {
 
                                 setState(() {});
                               },
+                              onOptional: () {},
                               field: field,
                               enable: !_isModifyMode,
                               showMenu: _isModifyMode,
@@ -749,6 +753,7 @@ class _LongLinesFormState extends State<LongLinesForm> {
                                 maintenanceFieldItems.removeAt(index);
                                 setState(() {});
                               },
+                              onOptional: () {},
                               field: field,
                               enable: !_isModifyMode,
                               showMenu: _isModifyMode,
@@ -783,6 +788,7 @@ class _LongLinesFormState extends State<LongLinesForm> {
                                 othersFieldItems.removeAt(index);
                                 setState(() {});
                               },
+                              onOptional: () {},
                               field: field,
                               enable: !_isModifyMode,
                               showMenu: _isModifyMode,
@@ -833,10 +839,10 @@ class OptionMenuWidget extends StatefulWidget {
   final bool isFirst;
   final bool showMenu;
   final bool enable;
-  final bool? isAddMode;
 
   final VoidCallback onMoveUp;
   final VoidCallback onRemove;
+  final VoidCallback onOptional;
 
   OptionMenuWidget({
     required this.key,
@@ -846,7 +852,7 @@ class OptionMenuWidget extends StatefulWidget {
     required this.onMoveUp,
     required this.onRemove,
     required this.enable,
-    this.isAddMode,
+    required this.onOptional,
   });
 
   @override
@@ -863,15 +869,37 @@ class _OptionMenuWidgetState extends State<OptionMenuWidget> {
         enable: widget.enable,
         initialValue: widget.field.value ?? "",
         onChanged: (val) => setState(() => widget.field.value = val),
-        validator: (val) => val.isEmpty ? 'Enter a ${widget.field.name}' : null,
-        labelText: '${widget.field.name} *',
+        validator: (val) {
+          if (widget.field.isOptional ?? false) return null;
+
+          if (widget.showMenu) {
+            return null;
+          } else {
+            val.isEmpty ? 'Enter a ${widget.field.name}' : null;
+          }
+        },
+        labelText:
+            (widget.field.isOptional ?? false) ? '${widget.field.name}' : '${widget.field.name} *',
       );
     } else if (widget.field.type == "dropdown") {
       return ReorderableDropDownWidget(
         showAddButton: widget.showMenu,
-        labelText: '${widget.field.name} *',
+        labelText:
+            (widget.field.isOptional ?? false) ? '${widget.field.name}' : '${widget.field.name} *',
         items: widget.field.options.isEmpty ? [] : widget.field.options,
-        validator: (val) => widget.field.options.isEmpty ? 'Add a ${widget.field.name}' : null,
+        validator: (val) {
+          if (widget.field.isOptional ?? false) return null;
+
+          if (widget.showMenu) {
+            if (widget.field.options.isEmpty) {
+              return '${widget.field.name} doesn\'t have any optoins.';
+            } else {
+              return null;
+            }
+          } else {
+            return widget.field.options.isEmpty ? 'Add a ${widget.field.name}' : null;
+          }
+        },
         onNew: (val) {
           //widget.field.options = val;
           widget.field.options.add(val);
@@ -888,18 +916,21 @@ class _OptionMenuWidgetState extends State<OptionMenuWidget> {
     } else if (widget.field.type == "date") {
       return DateTimePickerWidget(
         format: DateFormat('MM-dd-yyyy'),
-        labelText: '${widget.field.name} *',
+        labelText:
+            (widget.field.isOptional ?? false) ? '${widget.field.name}' : '${widget.field.name} *',
         enable: widget.enable,
         onChanged: (value) => setState(() => widget.field.timestamp = Timestamp.fromDate(value)),
-        validator: (val) => val == null ? 'Enter a date' : null,
+        validator: (val) {
+          if (widget.field.isOptional ?? false) return null;
+
+          if (widget.showMenu) {
+            return null;
+          } else {
+            return val == null ? 'Enter a date' : null;
+          }
+        },
         initialValue:
             widget.field.timestamp != null ? (widget.field.timestamp as Timestamp).toDate() : null,
-        /* initialValue: formType == 'edit'
-              ? DateTime.fromMillisecondsSinceEpoch(
-              datePurchased.seconds * 1000)
-              : dpField != null
-              ? (dpField.options as Timestamp).toDate()
-              : null*/
       );
     } else {
       return SizedBox();
@@ -908,7 +939,6 @@ class _OptionMenuWidgetState extends State<OptionMenuWidget> {
 
   @override
   Widget build(BuildContext context) {
-    // TODO: implement build
     return Row(
       //key: widget.key,
       children: [
@@ -924,30 +954,43 @@ class _OptionMenuWidgetState extends State<OptionMenuWidget> {
                 widget.field.name != 'Part Number' &&
                 widget.field.name != 'Serial Number'))
           PopupMenuButton(
-              onSelected: (value) {
-                if (value == 1) {
-                  widget.onMoveUp();
-                } else if (value == 2) {
-                  widget.onRemove();
-                } else if (value == 3) {
-                  // TODO: Add optional validation
-                }
-              },
-              itemBuilder: (context) => [
-                    if (!widget.isFirst)
-                      PopupMenuItem(
-                        child: Text("Move Up"),
-                        value: 1,
-                      ),
-                    PopupMenuItem(
-                      child: Text("Remove"),
-                      value: 2,
+            onSelected: (value) {
+              if (value == 1) {
+                widget.onMoveUp();
+              } else if (value == 2) {
+                widget.onRemove();
+              } else if (value == 3) {
+                widget.field.isOptional = !widget.field.isOptional!;
+                setState(() {});
+              }
+            },
+            itemBuilder: (context) => [
+              if (!widget.isFirst)
+                PopupMenuItem(
+                  child: Text("Move Up"),
+                  value: 1,
+                ),
+              PopupMenuItem(
+                child: Text("Remove"),
+                value: 2,
+              ),
+              PopupMenuItem(
+                child: Row(
+                  children: [
+                    Icon(
+                      widget.field.isOptional ?? false
+                          ? Icons.check_box
+                          : Icons.check_box_outline_blank,
+                      color: widget.field.isOptional ?? false ? Colors.green : null,
                     ),
-                    PopupMenuItem(
-                      child: Text("Optional"),
-                      value: 3,
-                    )
-                  ])
+                    SizedBox(width: 5.0),
+                    Text("Optional"),
+                  ],
+                ),
+                value: 3,
+              )
+            ],
+          )
       ],
     );
   }

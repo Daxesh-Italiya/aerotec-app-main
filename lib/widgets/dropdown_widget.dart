@@ -3,7 +3,6 @@ import 'dart:math';
 import 'package:aerotec_flutter_app/models/longlines/category_model.dart';
 import 'package:aerotec_flutter_app/widgets/widgets.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 
 class DropDownFormWidget extends StatelessWidget {
   final List<String> items;
@@ -362,9 +361,21 @@ class _ReorderableDropDownWidgetState extends State<ReorderableDropDownWidget> {
                         width: 1.0,
                       ),
                     ),
+                    disabledBorder: OutlineInputBorder(
+                      borderSide: BorderSide(
+                        color: Colors.grey,
+                        width: 1.0,
+                      ),
+                    ),
                     focusedBorder: OutlineInputBorder(
                       borderSide: BorderSide(
                         color: Colors.lightBlue,
+                        width: 2.0,
+                      ),
+                    ),
+                    errorBorder: OutlineInputBorder(
+                      borderSide: BorderSide(
+                        color: Colors.red,
                         width: 2.0,
                       ),
                     ),
