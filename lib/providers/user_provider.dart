@@ -11,7 +11,7 @@ class UserProvider extends ChangeNotifier {
   get userEmail => _userEmail;
 
   subUser(String email) async {
-    Stream documentStream = FirebaseFirestore.instance.collection('users').doc(email).snapshots();
+    Stream documentStream = FirebaseFirestore.instance.collection('aerotec/users/users').doc(email).snapshots();
     documentStream.listen((snapshot) {
       UserModel user = UserModel.fromSnapshot(snapshot);
       _user = user;
@@ -21,8 +21,8 @@ class UserProvider extends ChangeNotifier {
   }
 
   Future uploadProfileImage(File image) async {
-    var url = await ImageService.upload(image, 'users/$userEmail');
-    DocumentReference userRef = FirebaseFirestore.instance.collection('users').doc('$userEmail');
+    var url = await ImageService.upload(image, 'users/$userEmail', userEmail + '.jpg');
+    DocumentReference userRef = FirebaseFirestore.instance.collection('aerotec/users/users').doc('$userEmail');
     return userRef.update({
       'imageUrl': url
     });

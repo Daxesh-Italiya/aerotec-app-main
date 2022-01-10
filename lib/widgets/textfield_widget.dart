@@ -7,9 +7,9 @@ class TextFieldWidget extends StatelessWidget {
   final String labelText;
   final bool obscureText;
   final bool autofocus;
-  bool enable;
+  final bool enable;
   final TextCapitalization textCapitalization;
-  FocusNode? focusNode;
+  final FocusNode? focusNode;
 
   TextFieldWidget({
     required this.initialValue,
@@ -71,26 +71,6 @@ class TextFieldWidget extends StatelessWidget {
         onChanged: onChanged,
         validator: validator,
       ),
-    );
-  }
-}
-
-class ReorderableTextFieldWidget extends StatelessWidget {
-  final TextFieldWidget child;
-
-  ReorderableTextFieldWidget({required this.child});
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        // Icon(
-        //   Icons.drag_indicator,
-        //   size: 27,
-        //   color: Colors.grey,
-        // ),
-        Expanded(child: child)
-      ],
     );
   }
 }

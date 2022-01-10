@@ -1,22 +1,19 @@
 import 'dart:async';
-import 'dart:io';
 
-import 'package:aerotec_flutter_app/models/longlines/category_model.dart';
-import 'package:aerotec_flutter_app/services/image_service.dart';
+import 'package:aerotec_flutter_app/models/category_model.dart';
+import 'package:aerotec_flutter_app/models/field_model.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
-
-import '../models/longlines/longlines_model.dart';
+import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 class CategoriesProvider extends ChangeNotifier {
-  List<CategoryModel> _categoriesProvider = [];
-  late CategoryModel _singleListing;
+  List<CategoryModel> _categories = [];
   bool _isLoading = false;
   StreamSubscription? subscription;
 
   bool get isLoading => _isLoading;
-  List<CategoryModel> get categoriesProvider => _categoriesProvider;
-  CategoryModel get singleListing => _singleListing;
+  List<CategoryModel> get categories => _categories;
 
   void loading(bool state) {
     _isLoading = state;
@@ -25,82 +22,85 @@ class CategoriesProvider extends ChangeNotifier {
 
   subData() {
     subscription?.cancel();
-    subscription = FirebaseFirestore.instance
-        .collection('categories')
-        .snapshots()
-        .listen(getData);
+    subscription = FirebaseFirestore.instance.collection('aerotec/categories/categories').snapshots().listen(getData);
   }
 
   getData(snapshot) {
-    _categoriesProvider.clear();
+    _categories.clear();
     snapshot.docs.forEach((DocumentSnapshot document) {
-      print("cat data - ${document.data()}");
-
       CategoryModel categoryModel = CategoryModel.fromSnapshot(document);
-      debugPrint("cat name - ${categoryModel.name}, id - ${categoryModel.id}");
-      _categoriesProvider.add(categoryModel);
+      _categories.add(categoryModel);
     });
     loading(false);
   }
 
-  getSingleListing(String id) {
-    loading(true);
-    _singleListing =
-        _categoriesProvider.singleWhere((element) => element.id == id);
-    loading(false);
+
+  /* CREATE CATEGORY ----------------------------------------------------------------*/
+
+  createCategory(String name, allDefaultFields) async {
+
+    DocumentReference doc = await FirebaseFirestore.instance.collection('aerotec/categories/categories').add({
+      'name': name,
+      'fields': List.generate(allDefaultFields.length, (index) {
+        Field e = allDefaultFields[index];
+
+        return {
+          "label": e.label,
+          "name": e.name,
+          "type": e.type,
+          "options": e.options,
+          "position": index + 1,
+          "main_type": e.mainType
+        };
+      })
+    });
+
+    Fluttertoast.showToast(
+      msg: "New Category Added",
+      toastLength: Toast.LENGTH_SHORT,
+      gravity: ToastGravity.CENTER,
+      timeInSecForIosWeb: 1,
+      backgroundColor: Colors.black87,
+      textColor: Colors.white,
+      fontSize: 16.0
+    );
+
+    return doc;
   }
 
-  /* UPDATE LISTING ----------------------------------------------------------------*/
+  /* UPDATE CATEGORY ----------------------------------------------------------------*/
 
-  updateListing(LongLinesModel longline, File? image) async {
-    CollectionReference longlinesRef =
-        FirebaseFirestore.instance.collection('longlines');
+  updateCategory(String id, String name, allFields) async {
 
-    loading(true);
-    String fileUrl =
-        image != null ? await ImageService.upload(image, 'longlines') : '';
-    return longlinesRef.doc(longline.id).update({
-      'name': longline.name,
-      'length': longline.length,
-      'type': longline.type,
-      'imagePath': image == null ? longline.imagePath : fileUrl,
-      'safeWorkingLoad': longline.safeWorkingLoad,
-      'partNumber': longline.partNumber,
-      'serialNumber': longline.serialNumber,
-      'timeBetweenOverhauls': longline.timeBetweenOverhauls,
-      'inspectionDate': longline.inspectionDate,
-      'nextInspectionDate': longline.nextInspectionDate,
-      'datePurchased': longline.datePurchased,
-      'datePutIntoService': longline.datePutIntoService,
-    }).then((value) {
-      loading(false);
-    });
-  }
+    final equipment = {
+      'name': name,
+      'fields': List.generate(allFields.length, (index) {
+        Field e = allFields[index];
+        return {
+          "label": e.label,
+          "name": e.name,
+          "type": e.type,
+          "options": e.options,
+          "position": index + 1,
+          "main_type": e.mainType,
+          "value": null,
+          "is_optional": e.isOptional ?? false,
+        };
+      })
+    };
 
-  /* CREATE LISTING ----------------------------------------------------------------*/
+    await FirebaseFirestore.instance.collection('aerotec/categories/categories').doc(id).set(equipment);
 
-  Future createNewListing(LongLinesModel longline, File? image) async {
-    CollectionReference longlinesRef =
-        FirebaseFirestore.instance.collection('longlines');
+    Fluttertoast.showToast(
+      msg: "Category Updated",
+      toastLength: Toast.LENGTH_SHORT,
+      gravity: ToastGravity.CENTER,
+      timeInSecForIosWeb: 1,
+      backgroundColor: Colors.black87,
+      textColor: Colors.white,
+      fontSize: 16.0
+    );
 
-    loading(true);
-    String fileUrl =
-        image != null ? await ImageService.upload(image, 'longlines') : '';
-    return longlinesRef.add({
-      'name': longline.name,
-      'length': longline.length,
-      'type': longline.type,
-      'safeWorkingLoad': longline.safeWorkingLoad,
-      'partNumber': longline.partNumber,
-      'serialNumber': longline.serialNumber,
-      'timeBetweenOverhauls': longline.timeBetweenOverhauls,
-      'imagePath': fileUrl,
-      'inspectionDate': longline.inspectionDate,
-      'nextInspectionDate': longline.nextInspectionDate,
-      'datePurchased': longline.datePurchased,
-      'datePutIntoService': longline.datePutIntoService,
-    }).then((value) {
-      loading(false);
-    });
+    return null;
   }
 }

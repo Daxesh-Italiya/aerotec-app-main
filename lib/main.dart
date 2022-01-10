@@ -1,5 +1,7 @@
-import 'package:aerotec_flutter_app/providers/components_provider.dart';
+// @dart=2.9
+
 import 'package:aerotec_flutter_app/providers/user_provider.dart';
+import 'package:aerotec_flutter_app/screens/authentication/check_authentication.dart';
 import 'package:aerotec_flutter_app/widgets/widgets.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -7,7 +9,7 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 
 import 'providers/categories_provider.dart';
-import 'providers/longlines_provider.dart';
+import 'providers/equipment_provider.dart';
 import 'screens/main_tabbar/main_tabbar.dart';
 
 
@@ -36,8 +38,7 @@ class MyApp extends StatelessWidget {
         if (snapshot.connectionState == ConnectionState.done) {
           return MultiProvider(
             providers: [
-              ChangeNotifierProvider(create: (context) => LongLinesProvider()),
-              ChangeNotifierProvider(create: (context) => ComponentsProvider()),
+              ChangeNotifierProvider(create: (context) => EquipmentProvider()),
               ChangeNotifierProvider(create: (context) => UserProvider()),
               ChangeNotifierProvider(create: (context) => CategoriesProvider()),
             ],
@@ -48,32 +49,13 @@ class MyApp extends StatelessWidget {
                 primarySwatch: Colors.blue,
                 visualDensity: VisualDensity.adaptivePlatformDensity,
               ),
-              home: MainTabbar(),
+              home: CheckAuthentication(),
             ),
           );
         }
 
         return LoadingOverlay();
       },
-    );
-  }
-}
-
-class MyHomePage extends StatefulWidget {
-
-  final String title;
-  const MyHomePage({ required this.title });
-
-  _MyHomePageState createState() => _MyHomePageState();
-}
-
-class _MyHomePageState extends State<MyHomePage> {
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      home: Scaffold(
-        bottomNavigationBar: MainTabbar(),
-      ),
     );
   }
 }

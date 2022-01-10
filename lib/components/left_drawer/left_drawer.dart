@@ -42,7 +42,7 @@ class _LeftDrawerState extends State<LeftDrawer> {
                   ),
                 ),
                 child: ClipOval(
-                  child: userProvider.user!.imageUrl.isEmpty ? Icon(Icons.person) : Image.network(userProvider.user!.imageUrl, fit: BoxFit.cover)
+                  // child: userProvider.user!.imageUrl.isEmpty ? Icon(Icons.person) : Image.network(userProvider.user!.imageUrl, fit: BoxFit.cover)
                 )
               ),
             ),

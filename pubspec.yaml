@@ -8,23 +8,24 @@ environment:
 dependencies:
   camera_camera: ^2.0.1
   cupertino_icons: ^1.0.2
-  cloud_firestore: ^2.2.1
+  cloud_firestore: ^3.1.5
   datetime_picker_formfield: ^2.0.0
-  firebase_auth: "^1.3.0"
-  firebase_core: ^1.2.1
-  firebase_storage: "^8.1.1"
+  firebase_auth: ^3.3.4
+  firebase_core: ^1.10.6
+  firebase_storage: ^10.2.4
   flutter:
     sdk: flutter
-  fluttertoast: ^8.0.7
+  fluttertoast: ^8.0.8
   google_fonts: ^2.1.0
   image_picker: ^0.7.4
+  nfc_manager: ^3.1.0
   permission_handler: ^6.1.1
   photo_view: ^0.12.0
   provider: ^5.0.0
-  google_maps_flutter: ^2.1.0
+  google_maps_flutter: ^2.1.1
   # qr_code_scanner: ^0.3.5
   
-  
+  cached_network_image: ^3.2.0
   validators: ^3.0.0
 
 dev_dependencies:

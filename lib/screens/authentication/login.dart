@@ -32,22 +32,10 @@ class _LoginScreenState extends State<LoginScreen> {
   void login() async {
     setState(() => isLoading = true);
     try {
-      
       await FirebaseAuth.instance.signInWithEmailAndPassword(
         email: email.trim().toLowerCase(),
         password: password.trim(),
       );
-      
-      // User Exists! Subscribe to User
-      userProvider.subUser(email);
-      setState(() => isLoading = false);
-      Future.delayed(
-      const Duration(milliseconds: 900),
-      () async {
-        Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => MainTabbar()));
-      },
-    );
-      
 
     } on FirebaseAuthException catch (e) {
       setState(() {

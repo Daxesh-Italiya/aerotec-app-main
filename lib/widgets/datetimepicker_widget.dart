@@ -3,12 +3,14 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 class DateTimePickerWidget extends StatelessWidget {
+  
   final DateFormat format;
   final onChanged;
   final validator;
   final DateTime? initialValue;
   final String labelText;
-  bool enable;
+  final bool enable;
+
   DateTimePickerWidget({
     Key? key,
     required this.format,

@@ -27,8 +27,6 @@ class _CommentsChecklistItemWidgetState extends State<CommentsChecklistItemWidge
     fToast!.init(context);
   }
 
-
-
   void openCamera() {
     Navigator.of(context).push(
       MaterialPageRoute(

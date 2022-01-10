@@ -1,6 +1,6 @@
 import 'dart:math';
 
-import 'package:aerotec_flutter_app/models/longlines/category_model.dart';
+import 'package:aerotec_flutter_app/models/category_model.dart';
 import 'package:aerotec_flutter_app/widgets/widgets.dart';
 import 'package:flutter/material.dart';
 
@@ -58,156 +58,6 @@ class DropDownFormWidget extends StatelessWidget {
   }
 }
 
-/*
-class CustomDropDownFormWidget extends StatefulWidget {
-  final List<String> items;
-  final String value;
-  final onChanged;
-  final validator;
-  final String labelText;
-  final bool removeButton;
-  final bool? isDraggable;
-  final Key key;
-
-  CustomDropDownFormWidget(
-      {required this.items,
-      required this.value,
-      required this.onChanged,
-      required this.labelText,
-      required this.validator,
-      required this.key,
-      this.isDraggable = false,
-      this.removeButton = false});
-
-  @override
-  State<CustomDropDownFormWidget> createState() => _CustomDropDownFormWidgetState();
-}
-
-class _CustomDropDownFormWidgetState extends State<CustomDropDownFormWidget>
-    with AutomaticKeepAliveClientMixin {
-  final List<String> _items = [];
-
-  bool _addMode = false;
-
-  String value = '';
-
-  @override
-  Widget build(BuildContext context) {
-    if (!_addMode)
-      return Row(
-        children: [
-          if (widget.isDraggable!)
-            Icon(
-              Icons.drag_indicator,
-              size: 27,
-              color: Colors.grey,
-            ),
-          Expanded(
-            child: DropdownButtonFormField(
-                validator: widget.validator,
-                decoration: InputDecoration(
-                  labelText: widget.labelText,
-                  enabledBorder: OutlineInputBorder(
-                    borderSide: BorderSide(
-                      color: Colors.grey,
-                      width: 1.0,
-                    ),
-                  ),
-                  focusedBorder: OutlineInputBorder(
-                    borderSide: BorderSide(
-                      color: Colors.lightBlue,
-                      width: 2.0,
-                    ),
-                  ),
-                  fillColor: Colors.white,
-                  filled: true,
-                ),
-                isExpanded: true,
-                selectedItemBuilder: (context) {
-                  return (widget.items + _items).map((String item) {
-                    return Text(item);
-                  }).toList();
-                },
-                items: (widget.items + _items).map(
-                  (String item) {
-                    return DropdownMenuItem(
-                      child: Text(item),
-                      value: item,
-                    );
-                  },
-                ).toList(),
-                value: widget.value,
-                onChanged: widget.onChanged),
-          ),
-          _RoundIconButton(
-            icon: Icons.add,
-            onTap: () {
-              setState(() {
-                _addMode = !_addMode;
-              });
-            },
-          ),
-          if (widget.removeButton)
-            _RoundIconButton(
-              icon: Icons.remove,
-              onTap: () {
-                if (_items.isNotEmpty)
-                  setState(() {
-                    _items.remove(widget.value);
-                    widget.onChanged(widget.items[0]);
-                  });
-              },
-            )
-        ],
-      );
-    else
-      return Row(
-        children: [
-          Expanded(
-            child: TextFieldWidget(
-              autofocus: true,
-              textCapitalization: TextCapitalization.sentences,
-              obscureText: false,
-              initialValue: '',
-              onChanged: (val) => setState(() => value = val),
-              validator: (val) => value == '' ? 'Add ${widget.labelText}' : null,
-              labelText: 'Add ${widget.labelText}',
-            ),
-          ),
-          _RoundIconButton(
-            icon: Icons.done,
-            onTap: () {
-              if (value.isNotEmpty)
-                setState(() {
-                  // _items.add(value);
-                  widget.onChanged(value);
-                  value = '';
-
-                  _addMode = !_addMode;
-                });
-            },
-          ),
-          Transform.rotate(
-            angle: pi / 4,
-            child: _RoundIconButton(
-              icon: Icons.add,
-              onTap: () {
-                setState(() {
-                  _addMode = !_addMode;
-                });
-              },
-            ),
-          )
-        ],
-      );
-  }
-
-  @override
-  // TODO: implement wantKeepAlive
-  bool get wantKeepAlive => true;
-}
-*/
-
 class _RoundIconButton extends StatelessWidget {
   const _RoundIconButton({
     Key? key,
@@ -223,19 +73,20 @@ class _RoundIconButton extends StatelessWidget {
     return InkWell(
       onTap: onTap,
       child: Container(
-          padding: EdgeInsets.all(4),
-          margin: EdgeInsets.symmetric(horizontal: 4),
-          decoration: BoxDecoration(
-              color: Colors.white,
-              shape: BoxShape.circle,
-              border: Border.all(
-                color: Color(0xFFB6B6B6),
-              )),
-          child: Icon(
-            icon,
-            size: 26,
-            color: Color(0xFF6D6D6D),
-          )),
+        padding: EdgeInsets.all(4),
+        margin: EdgeInsets.symmetric(horizontal: 4),
+        decoration: BoxDecoration(
+            color: Colors.white,
+            shape: BoxShape.circle,
+            border: Border.all(
+              color: Color(0xFFB6B6B6),
+            )),
+        child: Icon(
+          icon,
+          size: 26,
+          color: Color(0xFF6D6D6D),
+        )
+      ),
     );
   }
 }
@@ -250,6 +101,7 @@ class ReorderableDropDownWidget extends StatefulWidget {
   final validator;
   final String labelText;
   final bool showAddButton;
+  final Function setMenu;
 
   ReorderableDropDownWidget({
     required this.items,
@@ -259,6 +111,7 @@ class ReorderableDropDownWidget extends StatefulWidget {
     required this.selected,
     required this.validator,
     required this.showAddButton,
+    required this.setMenu,
   });
 
   @override
@@ -305,16 +158,18 @@ class _ReorderableDropDownWidgetState extends State<ReorderableDropDownWidget> {
     debugPrint('Close text field!!');
     setState(() {
       _addMode = false;
+      widget.setMenu(true);
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    debugPrint('AddMode = $_addMode && ShowAddButton ${widget.showAddButton}');
 
     if (_addMode == true && widget.showAddButton == false) {
       _addMode = false;
     }
+
+    // Checkbox and Cancel circular buttons -------------------------------------------------------/
 
     if (widget.showAddButton && _addMode) {
       return Row(
@@ -325,14 +180,13 @@ class _ReorderableDropDownWidgetState extends State<ReorderableDropDownWidget> {
           _RoundIconButton(
             icon: Icons.done,
             onTap: () {
-              if (value.isNotEmpty)
-                setState(() {
-                  if (widget.onNew != null) {
-                    widget.onNew(value);
-                  }
-
-                  _addMode = false;
-                });
+              if (value.isNotEmpty) setState(() {
+                if (widget.onNew != null) {
+                  widget.onNew(value);
+                }
+                _addMode = false;
+                widget.setMenu(true);
+              });
             },
           ),
           Transform.rotate(
@@ -344,63 +198,64 @@ class _ReorderableDropDownWidgetState extends State<ReorderableDropDownWidget> {
           ),
         ],
       );
+
     } else if (widget.showAddButton) {
+
       return Row(
         children: [
           Expanded(
             child: Container(
               //height: 55,
               child: DropdownButtonFormField<int>(
-                  hint: Text('Add dropdown options'),
-                  validator: widget.validator,
-                  decoration: InputDecoration(
-                    labelText: widget.labelText,
-                    enabledBorder: OutlineInputBorder(
-                      borderSide: BorderSide(
-                        color: Colors.grey,
-                        width: 1.0,
-                      ),
+                hint: Text('Add dropdown options'),
+                validator: widget.validator,
+                decoration: InputDecoration(
+                  labelText: widget.labelText,
+                  enabledBorder: OutlineInputBorder(
+                    borderSide: BorderSide(
+                      color: Colors.grey,
+                      width: 1.0,
                     ),
-                    disabledBorder: OutlineInputBorder(
-                      borderSide: BorderSide(
-                        color: Colors.grey,
-                        width: 1.0,
-                      ),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderSide: BorderSide(
-                        color: Colors.lightBlue,
-                        width: 2.0,
-                      ),
-                    ),
-                    errorBorder: OutlineInputBorder(
-                      borderSide: BorderSide(
-                        color: Colors.red,
-                        width: 2.0,
-                      ),
-                    ),
-                    fillColor: Colors.white,
-                    filled: true,
                   ),
-                  isExpanded: true,
-                  selectedItemBuilder: (context) {
-                    return lists.map((dynamic item) {
-                      return Text("${item}");
-                    }).toList();
-                  },
-                  items: List.generate(
-                      lists.length,
-                      (index) => DropdownMenuItem(
-                            child: Text(lists[index]),
-                            value: index,
-                          )),
-                  value: selected == -1 ? null : selected,
-                  onChanged: (val) {
-                    setState(() {
-                      selected = val!; //as String?;
-                      widget.onChanged(lists[val]);
-                    });
-                  }),
+                  disabledBorder: OutlineInputBorder(
+                    borderSide: BorderSide(
+                      color: Colors.grey,
+                      width: 1.0,
+                    ),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderSide: BorderSide(
+                      color: Colors.lightBlue,
+                      width: 2.0,
+                    ),
+                  ),
+                  errorBorder: OutlineInputBorder(
+                    borderSide: BorderSide(
+                      color: Colors.red,
+                      width: 2.0,
+                    ),
+                  ),
+                  fillColor: Colors.white,
+                  filled: true,
+                ),
+                isExpanded: true,
+                selectedItemBuilder: (context) {
+                  return lists.map((dynamic item) {
+                    return Text("${item}");
+                  }).toList();
+                },
+                items: List.generate(lists.length, (index) => DropdownMenuItem(
+                  child: Text(lists[index]),
+                  value: index,
+                )),
+                value: selected == -1 ? null : selected,
+                onChanged: (val) {
+                  setState(() {
+                    selected = val!; //as String?;
+                    widget.onChanged(lists[val]);
+                  });
+                }
+              ),
             ),
           ),
           _RoundIconButton(
@@ -408,6 +263,7 @@ class _ReorderableDropDownWidgetState extends State<ReorderableDropDownWidget> {
             onTap: () {
               setState(() {
                 _addMode = true;
+                widget.setMenu(false);
               });
 
               Future.delayed(Duration(milliseconds: 100)).then((value) {
@@ -421,51 +277,51 @@ class _ReorderableDropDownWidgetState extends State<ReorderableDropDownWidget> {
           ),
         ],
       );
+
     } else if (widget.showAddButton == false) {
+
       return Row(
         children: [
           Expanded(
             child: Container(
               //height: 55,
               child: DropdownButtonFormField<int>(
-                  hint: Text('Add dropdown options'),
-                  validator: widget.validator,
-                  decoration: InputDecoration(
-                    labelText: widget.labelText,
-                    enabledBorder: OutlineInputBorder(
-                      borderSide: BorderSide(
-                        color: Colors.grey,
-                        width: 1.0,
-                      ),
+                hint: Text('- Select -'),
+                validator: widget.validator,
+                decoration: InputDecoration(
+                  labelText: widget.labelText,
+                  enabledBorder: OutlineInputBorder(
+                    borderSide: BorderSide(
+                      color: Colors.grey,
+                      width: 1.0,
                     ),
-                    focusedBorder: OutlineInputBorder(
-                      borderSide: BorderSide(
-                        color: Colors.lightBlue,
-                        width: 2.0,
-                      ),
-                    ),
-                    fillColor: Colors.white,
-                    filled: true,
                   ),
-                  isExpanded: true,
-                  selectedItemBuilder: (context) {
-                    return lists.map((dynamic item) {
-                      return Text("${item}");
-                    }).toList();
-                  },
-                  items: List.generate(
-                      lists.length,
-                      (index) => DropdownMenuItem(
-                            child: Text(lists[index]),
-                            value: index,
-                          )),
-                  value: selected == -1 ? null : selected,
-                  onChanged: (val) {
-                    setState(() {
-                      selected = val!; //as String?;
-                      widget.onChanged(lists[val]);
-                    });
-                  }),
+                  focusedBorder: OutlineInputBorder(
+                    borderSide: BorderSide(
+                      color: Colors.lightBlue,
+                      width: 2.0,
+                    ),
+                  ),
+                  fillColor: Colors.white,
+                  filled: true,
+                ),
+                isExpanded: true,
+                selectedItemBuilder: (context) {
+                  return lists.map((dynamic item) {
+                    return Text("${item}");
+                  }).toList();
+                },
+                items: List.generate(lists.length,(index) => DropdownMenuItem(
+                  child: Text(lists[index]),
+                  value: index,
+                )),
+                value: selected == -1 ? null : selected,
+                onChanged: (val) {
+                  setState(() {
+                    selected = val!; //as String?;
+                    widget.onChanged(lists[val]);
+                  });
+                }),
             ),
           ),
         ],
@@ -479,135 +335,41 @@ class _ReorderableDropDownWidgetState extends State<ReorderableDropDownWidget> {
         ],
       );
     }
-
-    /*if (!_addMode)
-      return Row(
-        children: [
-          Expanded(
-            child: Container(
-              //height: 55,
-              child: DropdownButtonFormField<int>(
-                  hint: Text('Add dropdown options'),
-                  validator: widget.validator,
-                  decoration: InputDecoration(
-                    labelText: widget.labelText,
-                    enabledBorder: OutlineInputBorder(
-                      borderSide: BorderSide(
-                        color: Colors.grey,
-                        width: 1.0,
-                      ),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderSide: BorderSide(
-                        color: Colors.lightBlue,
-                        width: 2.0,
-                      ),
-                    ),
-                    fillColor: Colors.white,
-                    filled: true,
-                  ),
-                  isExpanded: true,
-                  selectedItemBuilder: (context) {
-                    return lists.map((dynamic item) {
-                      return Text("${item}");
-                    }).toList();
-                  },
-                  items: List.generate(
-                      lists.length,
-                      (index) => DropdownMenuItem(
-                            child: Text(lists[index]),
-                            value: index,
-                          )),
-                  value: selected == -1 ? null : selected,
-                  onChanged: (val) {
-                    setState(() {
-                      selected = val!; //as String?;
-                      widget.onChanged(lists[val]);
-                    });
-                  }),
-            ),
-          ),
-          if (widget.showAddButton)
-            _RoundIconButton(
-              icon: Icons.add,
-              onTap: () {
-                setState(() {
-                  _addMode = true;
-                });
-
-                Future.delayed(Duration(milliseconds: 100)).then((value) {
-                  if (_addMode) {
-                    FocusScope.of(context).requestFocus(focusNode);
-                  } else {
-                    focusNode.unfocus();
-                  }
-                });
-              },
-            ),
-        ],
-      );
-    else
-      return Row(
-        children: [
-          Expanded(
-            child: textField,
-          ),
-          _RoundIconButton(
-            icon: Icons.done,
-            onTap: () {
-              if (value.isNotEmpty)
-                setState(() {
-                  if (widget.onNew != null) {
-                    widget.onNew(value);
-                  }
-
-                  _addMode = false;
-                });
-
-              debugPrint('AddMode $_addMode');
-            },
-          ),
-          Transform.rotate(
-            angle: pi / 4,
-            child: _RoundIconButton(
-              icon: Icons.add,
-              onTap: _onButtonClose,
-            ),
-          )
-        ],
-      );*/
   }
 }
 
-class ReorderableCatDropDownWidget extends StatefulWidget {
+class CategoryDropDownWidget extends StatefulWidget {
   final List<CategoryModel> items;
-  Function(CategoryModel) onChanged;
+  final Function(CategoryModel) onChanged;
   //CategoryBuilder onChanged;
   //var onNew;
-  Function(String) onNew;
+  final Function(String) onNew;
   final validator;
+  final bool isModifyMode;
   final String labelText;
   final bool removeButton;
   final bool? isDraggable;
   final String? selected;
   //final Key key;
 
-  ReorderableCatDropDownWidget(
-      {required this.items,
-      required this.onChanged,
-      required this.onNew,
-      required this.labelText,
-      required this.validator,
-      //required this.key,
-      this.isDraggable = false,
-      this.removeButton = false,
-      this.selected});
+  CategoryDropDownWidget({
+    required this.items,
+    required this.onChanged,
+    required this.onNew,
+    required this.labelText,
+    required this.validator,
+    required this.isModifyMode,
+    //required this.key,
+    this.isDraggable = false,
+    this.removeButton = false,
+    this.selected,
+  });
 
   @override
-  State<ReorderableCatDropDownWidget> createState() => _ReorderableCatDropDownWidgetState();
+  State<CategoryDropDownWidget> createState() => _CategoryDropDownWidgetState();
 }
 
-class _ReorderableCatDropDownWidgetState extends State<ReorderableCatDropDownWidget> {
+class _CategoryDropDownWidgetState extends State<CategoryDropDownWidget> {
   bool _addMode = false;
   int selectedCat = -1;
 
@@ -617,21 +379,16 @@ class _ReorderableCatDropDownWidgetState extends State<ReorderableCatDropDownWid
 
   @override
   void initState() {
-    // TODO: implement initState
-
     if (widget.selected != null) {
       selectedCat = lists.indexWhere((element) => element.id == widget.selected!);
-      //widget.onChanged(widget.selected);
-
-      print("vishwa selected index - ${selectedCat}");
     } else {
-      print("vishwa selected index not found");
+      print("selected index not found");
     }
     super.initState();
   }
 
   @override
-  void didUpdateWidget(ReorderableCatDropDownWidget oldWidget) {
+  void didUpdateWidget(CategoryDropDownWidget oldWidget) {
     if (widget.selected != null) {
       setState(() {
         this.selectedCat = lists.indexWhere((element) => element.id == widget.selected!);
@@ -644,52 +401,56 @@ class _ReorderableCatDropDownWidgetState extends State<ReorderableCatDropDownWid
   @override
   Widget build(BuildContext context) {
     if (!_addMode)
+
       return Row(
         children: [
           Expanded(
             child: Container(
               //height: 55,
               child: DropdownButtonFormField<int>(
-                  hint: Text('- select or add new -'),
-                  validator: widget.validator,
-                  decoration: InputDecoration(
-                    labelText: widget.labelText,
-                    enabledBorder: OutlineInputBorder(
-                      borderSide: BorderSide(
-                        color: Colors.grey,
-                        width: 1.0,
-                      ),
+                hint: Text('- Select -'),
+                validator: widget.validator,
+                decoration: InputDecoration(
+                  labelText: widget.labelText,
+                  enabledBorder: OutlineInputBorder(
+                    borderSide: BorderSide(
+                      color: Colors.grey,
+                      width: 1.0,
                     ),
-                    focusedBorder: OutlineInputBorder(
-                      borderSide: BorderSide(
-                        color: Colors.lightBlue,
-                        width: 2.0,
-                      ),
-                    ),
-                    fillColor: Colors.white,
-                    filled: true,
                   ),
-                  isExpanded: true,
-                  selectedItemBuilder: (context) {
-                    return lists.map((CategoryModel item) {
-                      return Text(item.name);
-                    }).toList();
-                  },
-                  items: List.generate(
-                      lists.length,
-                      (index) => DropdownMenuItem(
-                            child: Text(lists[index].name),
-                            value: index,
-                          )),
-                  value: selectedCat == -1 ? null : selectedCat,
-                  onChanged: (val) {
-                    setState(() {
-                      selectedCat = val!; //as String?;
-                      widget.onChanged(lists[val]);
-                    });
-                  }),
+                  focusedBorder: OutlineInputBorder(
+                    borderSide: BorderSide(
+                      color: Colors.lightBlue,
+                      width: 2.0,
+                    ),
+                  ),
+                  fillColor: Colors.white,
+                  filled: true,
+                ),
+                isExpanded: true,
+                selectedItemBuilder: (context) {
+                  return lists.map((CategoryModel item) {
+                    return Text(item.name);
+                  }).toList();
+                },
+                items: List.generate(
+                  lists.length,
+                  (index) => DropdownMenuItem(
+                    child: Text(lists[index].name),
+                    value: index,
+                  )
+                ),
+                value: selectedCat == -1 ? null : selectedCat,
+                onChanged: (val) {
+                  setState(() {
+                    selectedCat = val!; //as String?;
+                    widget.onChanged(lists[val]);
+                  });
+                }
+              ),
             ),
           ),
+          if (widget.isModifyMode)
           _RoundIconButton(
             icon: Icons.add,
             onTap: () {
@@ -698,20 +459,11 @@ class _ReorderableCatDropDownWidgetState extends State<ReorderableCatDropDownWid
               });
             },
           ),
-          /*if (widget.removeButton)
-            _RoundIconButton(
-              icon: Icons.remove,
-              onTap: () {
-                if (_items.isNotEmpty)
-                  setState(() {
-                    // _items.remove(widget.value);
-                    widget.onChanged(widget.items[0]);
-                  });
-              },
-            )*/
         ],
       );
+
     else
+    
       return Row(
         children: [
           Expanded(

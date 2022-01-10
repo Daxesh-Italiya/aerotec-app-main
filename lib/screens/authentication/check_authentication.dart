@@ -26,12 +26,10 @@ class _CheckAuthenticationState extends State<CheckAuthentication> {
       if (user == null) {
         print('User is currently signed out!');
         setState(() => signedIn = false);
-        // Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => LoginScreen()));
       } else {
         print('User is signed in!');
         userProvider.subUser(user.email!);
         setState(() => signedIn = true);
-        // Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => MainTabbar()));
       }
     });
   }
